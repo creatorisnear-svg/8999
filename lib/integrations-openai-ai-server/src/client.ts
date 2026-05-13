@@ -1,18 +1,22 @@
 import OpenAI from "openai";
 
-if (!process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) {
+// On Replit: AI_INTEGRATIONS_OPENAI_BASE_URL + AI_INTEGRATIONS_OPENAI_API_KEY are injected automatically.
+// On Koyeb / other hosts: set OPENAI_API_KEY in your environment variables instead.
+
+const replitApiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+const replitBaseUrl = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+const standardApiKey = process.env.OPENAI_API_KEY;
+
+if (!replitApiKey && !standardApiKey) {
   throw new Error(
-    "AI_INTEGRATIONS_OPENAI_BASE_URL must be set. Did you forget to provision the OpenAI AI integration?",
+    "No OpenAI API key found.\n" +
+    "  • On Replit: enable the OpenAI AI Integration in your project settings.\n" +
+    "  • On Koyeb / other hosts: set the OPENAI_API_KEY environment variable.",
   );
 }
 
-if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
-  throw new Error(
-    "AI_INTEGRATIONS_OPENAI_API_KEY must be set. Did you forget to provision the OpenAI AI integration?",
-  );
-}
-
-export const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+export const openai = new OpenAI(
+  replitBaseUrl && replitApiKey
+    ? { apiKey: replitApiKey, baseURL: replitBaseUrl }  // Replit proxy
+    : { apiKey: standardApiKey! },                      // Standard OpenAI
+);

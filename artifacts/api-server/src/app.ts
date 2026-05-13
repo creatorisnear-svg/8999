@@ -2,6 +2,7 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import cors from "cors";
 import session from "express-session";
 import pinoHttp from "pino-http";
+import path from "node:path";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import "./types/session.d.ts";
@@ -79,5 +80,23 @@ app.use("/api", (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use("/api", router);
+
+// ─── Production: serve Vite-built frontend ────────────────────────────────────
+// In production (on Koyeb, etc.) the built frontend lives next to this file in
+// a "public/" sub-directory that the build script places there.
+if (process.env.NODE_ENV === "production") {
+  const publicDir = path.join(import.meta.dirname, "public");
+
+  app.use(express.static(publicDir));
+
+  // SPA fallback — any non-API route returns index.html so client-side routing works
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api/")) {
+      next();
+      return;
+    }
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
+}
 
 export default app;

@@ -3,12 +3,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { rm, cp } from "node:fs/promises";
+import { execSync } from "node:child_process";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
+const workspaceRoot = path.resolve(artifactDir, "../..");
+const isProduction = process.env.NODE_ENV === "production";
 
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
@@ -118,6 +121,23 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
   });
+
+  // In production: also build the Vite frontend and copy into dist/public
+  // so the Express server can serve the SPA alongside the API.
+  if (isProduction) {
+    console.log("Building frontend for production...");
+    execSync("pnpm --filter @workspace/tiktok-dropship run build", {
+      cwd: workspaceRoot,
+      stdio: "inherit",
+      env: { ...process.env, NODE_ENV: "production" },
+    });
+
+    const frontendDist = path.resolve(workspaceRoot, "artifacts/tiktok-dropship/dist/public");
+    const serverPublic = path.resolve(distDir, "public");
+
+    await cp(frontendDist, serverPublic, { recursive: true });
+    console.log("Frontend copied to dist/public ✓");
+  }
 }
 
 buildAll().catch((err) => {

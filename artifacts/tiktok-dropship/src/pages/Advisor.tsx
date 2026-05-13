@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -89,13 +90,19 @@ interface AskResult {
 
 // ─── api helpers ──────────────────────────────────────────────────────────────
 
+// Respects VITE_API_URL so that on Koyeb (separate API host) calls still work.
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+
 async function postAI<T>(path: string, body?: unknown): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE}/api${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(text || `HTTP ${res.status}`);
+  }
   return res.json() as Promise<T>;
 }
 
@@ -452,15 +459,16 @@ function CalendarTab() {
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground block mb-1.5">Posts per day</label>
-            <select
-              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-              value={postsPerDay}
-              onChange={e => setPostsPerDay(e.target.value)}
-            >
-              <option value="1">1 post/day</option>
-              <option value="2">2 posts/day</option>
-              <option value="3">3 posts/day</option>
-            </select>
+            <Select value={postsPerDay} onValueChange={setPostsPerDay}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 post/day</SelectItem>
+                <SelectItem value="2">2 posts/day</SelectItem>
+                <SelectItem value="3">3 posts/day</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <Button className="mt-4 w-full sm:w-auto" onClick={() => mutate()} disabled={isPending || !productName || !productDescription}>

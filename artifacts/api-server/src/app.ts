@@ -52,8 +52,8 @@ app.use(
   ),
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use(
   session({
@@ -87,10 +87,10 @@ app.use("/api", router);
 if (process.env.NODE_ENV === "production") {
   const publicDir = path.join(import.meta.dirname, "public");
 
-  app.use(express.static(publicDir));
+  app.use(express.static(publicDir, { maxAge: "1h" }));
 
   // SPA fallback — any non-API route returns index.html so client-side routing works
-  app.get("*", (req, res, next) => {
+  app.get("*", (req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith("/api/")) {
       next();
       return;
@@ -98,5 +98,21 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.join(publicDir, "index.html"));
   });
 }
+
+// ─── Global error handler ─────────────────────────────────────────────────────
+// Express 5 async errors are automatically forwarded here.
+// This ensures all unhandled errors return JSON instead of crashing the process.
+app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
+  const message = err instanceof Error ? err.message : "Internal server error";
+  const status = (err as { status?: number; statusCode?: number }).status
+    ?? (err as { status?: number; statusCode?: number }).statusCode
+    ?? 500;
+
+  logger.error({ err, url: req.url, method: req.method }, "Unhandled error");
+
+  if (!res.headersSent) {
+    res.status(status).json({ error: message });
+  }
+});
 
 export default app;

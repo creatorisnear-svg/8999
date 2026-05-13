@@ -477,3 +477,64 @@ export const GenerateOpenaiImageBody = zod.object({
 export const GenerateOpenaiImageResponse = zod.object({
   b64_json: zod.string(),
 });
+
+/**
+ * @summary Log in with password
+ */
+export const AuthLoginBody = zod.object({
+  password: zod.string(),
+});
+
+export const AuthLoginResponse = zod.object({
+  authenticated: zod.boolean(),
+});
+
+/**
+ * @summary Log out
+ */
+export const AuthLogoutResponse = zod.object({
+  authenticated: zod.boolean(),
+});
+
+/**
+ * @summary Get current auth status
+ */
+export const AuthMeResponse = zod.object({
+  authenticated: zod.boolean(),
+});
+
+/**
+ * @summary Get TikTok Shop connection settings
+ */
+export const GetShopSettingsResponse = zod.object({
+  id: zod.number(),
+  shopName: zod.string().nullish(),
+  shopUrl: zod.string().nullish(),
+  sellerId: zod.string().nullish(),
+  region: zod.string().nullish(),
+  accessToken: zod.string().nullish(),
+  isConnected: zod.boolean(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Update TikTok Shop connection settings
+ */
+export const UpdateShopSettingsBody = zod.object({
+  shopName: zod.string().nullish(),
+  shopUrl: zod.string().nullish(),
+  sellerId: zod.string().nullish(),
+  region: zod.string().nullish(),
+  accessToken: zod.string().nullish(),
+});
+
+export const UpdateShopSettingsResponse = zod.object({
+  id: zod.number(),
+  shopName: zod.string().nullish(),
+  shopUrl: zod.string().nullish(),
+  sellerId: zod.string().nullish(),
+  region: zod.string().nullish(),
+  accessToken: zod.string().nullish(),
+  isConnected: zod.boolean(),
+  updatedAt: zod.coerce.date(),
+});

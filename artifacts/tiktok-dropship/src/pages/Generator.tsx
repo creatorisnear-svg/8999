@@ -134,7 +134,7 @@ export default function Generator() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-5">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-5">
       <div>
         <h1 className="text-2xl font-bold">AI Generator</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Generate TikTok marketing content and product listings with AI</p>

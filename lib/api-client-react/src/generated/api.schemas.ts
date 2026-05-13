@@ -397,3 +397,30 @@ export interface OpenaiImageOutput {
 export interface OpenaiError {
   error: string;
 }
+
+export interface AuthLoginInput {
+  password: string;
+}
+
+export interface AuthStatus {
+  authenticated: boolean;
+}
+
+export interface ShopSettings {
+  id: number;
+  shopName?: string | null;
+  shopUrl?: string | null;
+  sellerId?: string | null;
+  region?: string | null;
+  accessToken?: string | null;
+  isConnected: boolean;
+  updatedAt: string;
+}
+
+export interface UpdateShopSettings {
+  shopName?: string | null;
+  shopUrl?: string | null;
+  sellerId?: string | null;
+  region?: string | null;
+  accessToken?: string | null;
+}

@@ -7,6 +7,8 @@
  */
 
 export * from "./apiError";
+export * from "./authLoginInput";
+export * from "./authStatus";
 export * from "./campaign";
 export * from "./campaignContentType";
 export * from "./campaignInput";
@@ -43,8 +45,10 @@ export * from "./productResearchResult";
 export * from "./productStatus";
 export * from "./productUpdate";
 export * from "./productUpdateStatus";
+export * from "./shopSettings";
 export * from "./supplier";
 export * from "./supplierIdea";
 export * from "./supplierInput";
 export * from "./supplierResearchInput";
 export * from "./supplierResearchResult";
+export * from "./updateShopSettings";

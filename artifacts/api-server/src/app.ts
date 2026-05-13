@@ -1,8 +1,10 @@
-import express, { type Express } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
+import session from "express-session";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import "./types/session.d.ts";
 
 const app: Express = express();
 
@@ -25,6 +27,7 @@ app.use(
     },
   }),
 );
+
 // Allow specific origins via ALLOWED_ORIGINS env var (comma-separated).
 // Falls back to wide-open for local development.
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -36,7 +39,6 @@ app.use(
     allowedOrigins.length > 0
       ? {
           origin: (origin, cb) => {
-            // Allow requests with no origin (server-to-server, curl, etc.)
             if (!origin || allowedOrigins.includes(origin)) {
               cb(null, true);
             } else {
@@ -45,11 +47,36 @@ app.use(
           },
           credentials: true,
         }
-      : undefined, // wide-open when no list provided (dev)
+      : { credentials: true, origin: true },
   ),
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET ?? "dev-secret-change-in-production",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    },
+  }),
+);
+
+// Auth guard — all /api routes require authentication except /auth/* and /healthz
+app.use("/api", (req: Request, res: Response, next: NextFunction) => {
+  const open = req.path.startsWith("/auth/") || req.path === "/healthz";
+  if (open || req.session.authenticated) {
+    next();
+    return;
+  }
+  res.status(401).json({ error: "Unauthorized" });
+});
 
 app.use("/api", router);
 

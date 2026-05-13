@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Layout from "@/components/Layout";
@@ -9,7 +10,10 @@ import Research from "@/pages/Research";
 import Suppliers from "@/pages/Suppliers";
 import Campaigns from "@/pages/Campaigns";
 import Generator from "@/pages/Generator";
+import Settings from "@/pages/Settings";
+import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
+import { authMe } from "@workspace/api-client-react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,7 +24,33 @@ const queryClient = new QueryClient({
   },
 });
 
-function Router() {
+function AuthGate() {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["auth-me"],
+    queryFn: () => authMe(),
+    retry: false,
+    staleTime: 60_000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!data?.authenticated) {
+    return (
+      <Login
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["auth-me"] });
+          refetch();
+        }}
+      />
+    );
+  }
+
   return (
     <Layout>
       <Switch>
@@ -30,6 +60,15 @@ function Router() {
         <Route path="/suppliers" component={Suppliers} />
         <Route path="/campaigns" component={Campaigns} />
         <Route path="/generator" component={Generator} />
+        <Route path="/settings">
+          {() => (
+            <Settings
+              onLogout={() => {
+                queryClient.invalidateQueries({ queryKey: ["auth-me"] });
+              }}
+            />
+          )}
+        </Route>
         <Route component={NotFound} />
       </Switch>
     </Layout>
@@ -41,7 +80,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
+          <AuthGate />
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

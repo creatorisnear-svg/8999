@@ -51,7 +51,7 @@ export default function Dashboard() {
   const recentCampaigns = campaigns?.slice(-5).reverse() ?? [];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground text-sm mt-0.5">Your TikTok dropshipping command center</p>

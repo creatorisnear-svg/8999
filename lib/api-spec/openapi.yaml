@@ -22,6 +22,10 @@ tags:
     description: Dashboard stats
   - name: openai
     description: OpenAI AI chat, image, and audio operations
+  - name: auth
+    description: Authentication
+  - name: settings
+    description: App settings including TikTok Shop connection
 paths:
   /healthz:
     get:
@@ -518,6 +522,83 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OpenaiImageOutput"
+
+  /auth/login:
+    post:
+      operationId: authLogin
+      tags: [auth]
+      summary: Log in with password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthLoginInput"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthStatus"
+        "401":
+          description: Invalid password
+
+  /auth/logout:
+    post:
+      operationId: authLogout
+      tags: [auth]
+      summary: Log out
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthStatus"
+
+  /auth/me:
+    get:
+      operationId: authMe
+      tags: [auth]
+      summary: Get current auth status
+      responses:
+        "200":
+          description: Auth status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthStatus"
+
+  /settings/shop:
+    get:
+      operationId: getShopSettings
+      tags: [settings]
+      summary: Get TikTok Shop connection settings
+      responses:
+        "200":
+          description: Shop settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopSettings"
+    put:
+      operationId: updateShopSettings
+      tags: [settings]
+      summary: Update TikTok Shop connection settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateShopSettings"
+      responses:
+        "200":
+          description: Updated shop settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopSettings"
 
 components:
   schemas:
@@ -1067,3 +1148,68 @@ components:
           type: string
       required:
         - error
+
+    AuthLoginInput:
+      type: object
+      properties:
+        password:
+          type: string
+      required:
+        - password
+
+    AuthStatus:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+      required:
+        - authenticated
+
+    ShopSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        shopName:
+          type: string
+          nullable: true
+        shopUrl:
+          type: string
+          nullable: true
+        sellerId:
+          type: string
+          nullable: true
+        region:
+          type: string
+          nullable: true
+        accessToken:
+          type: string
+          nullable: true
+        isConnected:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - isConnected
+        - updatedAt
+
+    UpdateShopSettings:
+      type: object
+      properties:
+        shopName:
+          type: string
+          nullable: true
+        shopUrl:
+          type: string
+          nullable: true
+        sellerId:
+          type: string
+          nullable: true
+        region:
+          type: string
+          nullable: true
+        accessToken:
+          type: string
+          nullable: true

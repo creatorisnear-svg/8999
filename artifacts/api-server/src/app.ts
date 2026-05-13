@@ -25,7 +25,29 @@ app.use(
     },
   }),
 );
-app.use(cors());
+// Allow specific origins via ALLOWED_ORIGINS env var (comma-separated).
+// Falls back to wide-open for local development.
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+  : [];
+
+app.use(
+  cors(
+    allowedOrigins.length > 0
+      ? {
+          origin: (origin, cb) => {
+            // Allow requests with no origin (server-to-server, curl, etc.)
+            if (!origin || allowedOrigins.includes(origin)) {
+              cb(null, true);
+            } else {
+              cb(new Error(`CORS: origin '${origin}' not allowed`));
+            }
+          },
+          credentials: true,
+        }
+      : undefined, // wide-open when no list provided (dev)
+  ),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

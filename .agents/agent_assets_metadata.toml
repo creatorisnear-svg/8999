@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "k_F4M7txYng0llTeEnZSq"
+uri = "file://DEPLOY.md"
+type = "text"
+title = "Koyeb Deployment Guide"

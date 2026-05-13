@@ -16,6 +16,21 @@ function parseJson(text: string): unknown {
   return JSON.parse(cleaned);
 }
 
+// ─── Image URL helper ─────────────────────────────────────────────────────────
+// Uses loremflickr.com — real photos, no API key needed, consistent per product
+function getProductImageUrl(searchQuery: string): string {
+  const keywords = searchQuery
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(",");
+  let hash = 0;
+  for (const ch of searchQuery) hash = ((hash * 31) + ch.charCodeAt(0)) & 0x7fffffff;
+  return `https://loremflickr.com/400/400/${keywords || "product"}?lock=${hash}`;
+}
+
 type Msg = { role: "system" | "user" | "assistant"; content: string };
 
 /**
@@ -93,7 +108,17 @@ Return ONLY this JSON:
   ], 6000);
 
   const text = response.choices[0]?.message?.content ?? "{}";
-  try { res.json(parseJson(text)); }
+  try {
+    const data = parseJson(text) as { ideas?: Record<string, unknown>[] };
+    // Attach auto-fetched image URL to each idea
+    if (Array.isArray(data.ideas)) {
+      for (const idea of data.ideas) {
+        const q = (idea.imageSearchQuery as string) || (idea.name as string) || "product";
+        idea.imageUrl = getProductImageUrl(q);
+      }
+    }
+    res.json(data);
+  }
   catch { req.log.error({ text }, "Failed to parse AI research response"); res.status(500).json({ error: "Failed to parse AI response" }); }
 });
 
@@ -445,7 +470,16 @@ Return ONLY this JSON:
   ], 5000);
 
   const text = response.choices[0]?.message?.content ?? "{}";
-  try { res.json(parseJson(text)); }
+  try {
+    const data = parseJson(text) as { products?: Record<string, unknown>[] };
+    if (Array.isArray(data.products)) {
+      for (const p of data.products) {
+        const q = (p.imageSearchQuery as string) || (p.name as string) || "product";
+        p.imageUrl = getProductImageUrl(q);
+      }
+    }
+    res.json(data);
+  }
   catch { req.log.error({ text }, "Failed to parse discover response"); res.status(500).json({ error: "Failed to parse AI response" }); }
 });
 
@@ -590,6 +624,114 @@ Return ONLY this JSON:
   const text = response.choices[0]?.message?.content ?? "{}";
   try { res.json(parseJson(text)); }
   catch { req.log.error({ text }, "Failed to parse content calendar response"); res.status(500).json({ error: "Failed to parse AI response" }); }
+});
+
+// ─── Full Launch — zero-input complete product launch package ─────────────────
+// The "do everything for me" endpoint. Returns 4 products with images, pricing,
+// suppliers, hooks, video scripts, and listing copy — ready to save in one click.
+
+router.post("/ai/full-launch", async (req, res) => {
+  const response = await aiChat([
+    {
+      role: "system",
+      content: `You are a veteran TikTok Shop dropshipping expert who has generated over $10M in combined student revenue. You know EXACTLY what is selling on TikTok Shop RIGHT NOW. You think like a product researcher, copywriter, and marketer simultaneously.
+
+You give brutally specific, real information:
+- Actual product names that exist on AliExpress/CJDropshipping
+- Psychologically optimized prices (e.g. $29.99, not $30)
+- Hook lines that ACTUALLY stop the scroll
+- Real supplier search URLs
+- Descriptions that make people click "Add to Cart" immediately
+
+You respond only with valid JSON — no markdown, no commentary.`,
+    },
+    {
+      role: "user",
+      content: `Find me 4 trending products I can start selling on TikTok Shop TODAY with everything I need to launch — no additional research required.
+
+Requirements:
+- Currently trending or viral on TikTok (think: #tiktokmademebuyit, TikTok Shop bestsellers)
+- Source for under $12, sell for $20–$55
+- At least 65% profit margin potential
+- Easy to create TikTok content for — visual wow factor, emotional reaction, or satisfying demo
+- Mix of different niches (beauty, home, tech, lifestyle, etc.)
+- Real products that exist on AliExpress/CJDropshipping
+
+Return ONLY this JSON — all fields are required:
+{
+  "products": [
+    {
+      "name": "Very specific product name (e.g. 'Magnetic Levitating Moon Lamp' not just 'LED lamp')",
+      "emoji": "🔥",
+      "category": "Exact category",
+      "shortDescription": "One punchy sentence that makes someone want to buy immediately",
+      "fullDescription": "3 sentences: what it is + why it's special + who it's for. SEO-friendly, compelling, no fluff.",
+      "sellingPoints": [
+        "Specific benefit or feature 1",
+        "Specific benefit or feature 2",
+        "Specific benefit or feature 3",
+        "Shipping/fulfillment advantage",
+        "Social proof or trend angle"
+      ],
+      "sourcingPrice": 8.50,
+      "tiktokShopPrice": 34.99,
+      "flashSalePrice": 27.99,
+      "competitorAmazonPrice": 49.99,
+      "profitPerUnit": 26.49,
+      "profitMargin": 76,
+      "trendScore": 91,
+      "monthlyRevenue": "$4,200/mo selling 5 units/day",
+      "imageSearchQuery": "specific product photo search keywords (2-4 words)",
+      "aliexpressSearchUrl": "https://www.aliexpress.com/wholesale?SearchText=PRODUCT+KEYWORDS",
+      "cjSearchUrl": "https://cjdropshipping.com/search?q=PRODUCT+KEYWORDS",
+      "targetAudience": "Very specific demographic and psychographic",
+      "hooks": [
+        "I spent $8 and made $400 this week — here's what I sold",
+        "POV: you finally found a winning TikTok Shop product",
+        "The product everyone is ordering but nobody is selling yet",
+        "This thing cost me $8 to buy and I sell it for $35",
+        "Why is this [product] going viral on TikTok Shop?"
+      ],
+      "videoScript": "HOOK (0-3s): [Exact line to say with exact action] | DEMO (3-15s): [Step by step what to show on camera] | REVEAL (15-20s): [The wow moment] | CTA (20-25s): [Exact words to say to drive clicks]",
+      "hashtags": "#TikTokShop #tiktokmademebuyit #viral #[niche] #[product]",
+      "suppliers": [
+        {
+          "name": "Specific store name on the platform",
+          "platform": "CJDropshipping",
+          "url": "https://cjdropshipping.com/search?q=keywords",
+          "shippingTime": "8-12 days to US",
+          "rating": 4.8,
+          "minOrderQuantity": 1,
+          "notes": "Why this supplier is best for TikTok Shop"
+        },
+        {
+          "name": "Backup supplier name",
+          "platform": "AliExpress",
+          "url": "https://www.aliexpress.com/wholesale?SearchText=keywords",
+          "shippingTime": "10-15 days to US",
+          "rating": 4.6,
+          "minOrderQuantity": 1,
+          "notes": "Good backup with slightly longer shipping"
+        }
+      ]
+    }
+  ]
+}`,
+    },
+  ], 8000);
+
+  const text = response.choices[0]?.message?.content ?? "{}";
+  try {
+    const data = parseJson(text) as { products?: Record<string, unknown>[] };
+    if (Array.isArray(data.products)) {
+      for (const p of data.products) {
+        const q = (p.imageSearchQuery as string) || (p.name as string) || "product";
+        p.imageUrl = getProductImageUrl(q);
+      }
+    }
+    res.json(data);
+  }
+  catch { req.log.error({ text }, "Failed to parse full-launch response"); res.status(500).json({ error: "Failed to parse AI response" }); }
 });
 
 // ─── Ask AI ───────────────────────────────────────────────────────────────────

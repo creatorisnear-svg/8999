@@ -13,6 +13,7 @@ export const productsTable = pgTable("products", {
   trendScore: integer("trend_score"),
   status: text("status", { enum: ["researching", "active", "paused", "archived"] }).notNull().default("researching"),
   notes: text("notes"),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

@@ -143,7 +143,18 @@ export default function Products() {
           {products?.map((p) => (
             <Card key={p.id} data-testid={`card-product-${p.id}`}>
               <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  {(p as any).imageUrl && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0">
+                      <img
+                        src={(p as any).imageUrl}
+                        alt={p.name}
+                        className="w-full h-full object-cover"
+                        onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0 flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-sm">{p.name}</h3>
@@ -186,6 +197,7 @@ export default function Products() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  </div>
                 </div>
               </CardContent>
             </Card>

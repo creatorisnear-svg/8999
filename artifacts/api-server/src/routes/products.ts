@@ -23,6 +23,9 @@ router.post("/products", async (req, res) => {
     return;
   }
   const { estimatedCost, estimatedSellingPrice, trendScore, ...rest } = parsed.data;
+  // imageUrl is not in the generated Zod schema — read directly
+  const imageUrl = typeof req.body.imageUrl === "string" ? req.body.imageUrl : null;
+
   let profitMargin: string | null = null;
   if (estimatedCost != null && estimatedSellingPrice != null && estimatedCost > 0) {
     profitMargin = (((estimatedSellingPrice - estimatedCost) / estimatedSellingPrice) * 100).toFixed(2);
@@ -33,6 +36,7 @@ router.post("/products", async (req, res) => {
     estimatedSellingPrice: estimatedSellingPrice != null ? String(estimatedSellingPrice) : null,
     profitMargin,
     trendScore: trendScore ?? null,
+    imageUrl,
   }).returning();
   res.status(201).json(product);
 });
@@ -70,6 +74,9 @@ router.patch("/products/:id", async (req, res) => {
   if (estimatedCost != null && estimatedSellingPrice != null && estimatedCost > 0) {
     updateData.profitMargin = (((estimatedSellingPrice - estimatedCost) / estimatedSellingPrice) * 100).toFixed(2);
   }
+  // Allow updating imageUrl
+  if (typeof req.body.imageUrl === "string") updateData.imageUrl = req.body.imageUrl;
+
   const [updated] = await db.update(productsTable).set(updateData).where(eq(productsTable.id, paramsParsed.data.id)).returning();
   if (!updated) {
     res.status(404).json({ error: "Product not found" });

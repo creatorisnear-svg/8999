@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   useAiResearchProducts,
   useAiTrendingNiches,
@@ -12,8 +12,8 @@ import {
 } from "@workspace/api-client-react";
 import {
   Sparkles, Plus, TrendingUp, DollarSign, Users, Loader2,
-  Zap, BarChart3, ChevronRight, CheckCircle2, X, Copy, Check,
-  AlertTriangle, ThumbsUp, ShieldAlert, Target, Rocket,
+  Zap, BarChart3, ChevronRight, ChevronDown, ChevronUp, CheckCircle2, X, Copy, Check,
+  AlertTriangle, ThumbsUp, ShieldAlert, Target, Rocket, RefreshCw, ExternalLink,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,42 @@ type ProductIdea = {
   trendingHooks?: string[];
   sourcingTip?: string;
   riskLevel?: string;
+  imageUrl?: string;
+  imageSearchQuery?: string;
+};
+
+type FullLaunchProduct = {
+  name: string;
+  emoji: string;
+  category: string;
+  shortDescription: string;
+  fullDescription: string;
+  sellingPoints: string[];
+  sourcingPrice: number;
+  tiktokShopPrice: number;
+  flashSalePrice: number;
+  competitorAmazonPrice: number;
+  profitPerUnit: number;
+  profitMargin: number;
+  trendScore: number;
+  monthlyRevenue: string;
+  imageSearchQuery: string;
+  imageUrl: string;
+  aliexpressSearchUrl: string;
+  cjSearchUrl: string;
+  targetAudience: string;
+  hooks: string[];
+  videoScript: string;
+  hashtags: string;
+  suppliers: Array<{
+    name: string;
+    platform: string;
+    url: string;
+    shippingTime: string;
+    rating: number;
+    minOrderQuantity: number;
+    notes: string;
+  }>;
 };
 
 type TrendingNiche = {
@@ -79,6 +115,309 @@ type AutopilotResult = {
   }>;
   launchChecklist: string[];
 };
+
+// ─── API helper ───────────────────────────────────────────────────────────────
+
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+
+async function postAI<T>(path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${API_BASE}/api${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+// ─── Full Launch Panel ────────────────────────────────────────────────────────
+
+function FullLaunchPanel() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const createProduct = useCreateProduct();
+  const createCampaign = useCreateCampaign();
+  const [results, setResults] = useState<FullLaunchProduct[]>([]);
+  const [saved, setSaved] = useState<Set<number>>(new Set());
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => postAI<{ products: FullLaunchProduct[] }>("/ai/full-launch"),
+    onSuccess: (data) => {
+      setResults(data.products ?? []);
+      setSaved(new Set());
+      setExpanded(0);
+    },
+    onError: () => toast({ title: "AI request failed. Try again.", variant: "destructive" }),
+  });
+
+  function handleSaveAll(p: FullLaunchProduct, idx: number) {
+    createProduct.mutate({ data: {
+      name: p.name,
+      description: p.fullDescription,
+      category: p.category,
+      estimatedCost: p.sourcingPrice,
+      estimatedSellingPrice: p.tiktokShopPrice,
+      trendScore: p.trendScore,
+      status: "researching",
+      notes: `Target: ${p.targetAudience}\nRevenue: ${p.monthlyRevenue}`,
+      imageUrl: p.imageUrl,
+    } as any}, {
+      onSuccess: () => {
+        if (p.hooks?.length) {
+          createCampaign.mutate({ data: {
+            title: `${p.name} — Hook Pack`,
+            contentType: "hooks" as any,
+            content: p.hooks.join("\n"),
+            hashtags: p.hashtags,
+            targetAudience: p.targetAudience,
+            status: "draft",
+          }});
+        }
+        if (p.videoScript) {
+          createCampaign.mutate({ data: {
+            title: `${p.name} — Video Script`,
+            contentType: "script" as any,
+            content: p.videoScript,
+            hashtags: p.hashtags,
+            targetAudience: p.targetAudience,
+            status: "draft",
+          }});
+        }
+        setSaved(s => new Set([...s, idx]));
+        queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListCampaignsQueryKey() });
+        toast({ title: `✅ ${p.name} saved!`, description: "Product + campaigns created" });
+      },
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+        <CardContent className="p-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Rocket className="w-4 h-4 text-primary" />
+                </div>
+                <h2 className="text-lg font-bold">AI Full Launch</h2>
+                <span className="text-xs bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-medium">Zero Input</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                AI finds 4 winning products with auto-fetched images, smart pricing, video scripts, hook lines, and supplier links. Save everything in one click.
+              </p>
+            </div>
+            <Button onClick={() => mutate()} disabled={isPending} size="lg" className="w-full sm:w-auto shrink-0">
+              {isPending
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />AI is scanning trends...</>
+                : results.length > 0
+                  ? <><RefreshCw className="w-4 h-4 mr-2" />Find New Winners</>
+                  : <><Rocket className="w-4 h-4 mr-2" />Find Winners For Me</>}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {isPending && (
+        <div className="flex flex-col items-center justify-center py-14 gap-3 text-muted-foreground">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm font-medium">Scanning TikTok trends and building launch packages...</p>
+          <p className="text-xs">This takes ~15 seconds — AI is finding images, pricing, scripts, and suppliers for you</p>
+        </div>
+      )}
+
+      {!isPending && results.length > 0 && (
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground font-medium">{results.length} winning products found — click "Save All" to add to your catalog</p>
+          {results.map((p, idx) => (
+            <Card key={idx} className={cn("overflow-hidden transition-opacity", saved.has(idx) && "opacity-60")}>
+              <CardContent className="p-0">
+                {/* Image + header row */}
+                <div className="flex">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 shrink-0 overflow-hidden bg-muted relative">
+                    <img
+                      src={p.imageUrl}
+                      alt={p.name}
+                      className="w-full h-full object-cover"
+                      onError={e => {
+                        const t = e.target as HTMLImageElement;
+                        t.onerror = null;
+                        t.src = `https://placehold.co/400x400/0f0f11/6366f1?text=${encodeURIComponent(p.emoji || "📦")}`;
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 p-4 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-base">{p.emoji}</span>
+                          <span className="font-bold text-sm sm:text-base leading-tight">{p.name}</span>
+                          <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{p.category}</span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">{p.shortDescription}</p>
+                      </div>
+                      {saved.has(idx) ? (
+                        <span className="text-xs bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 px-2 py-1 rounded-full font-medium shrink-0">✓ Saved</span>
+                      ) : (
+                        <Button size="sm" onClick={() => handleSaveAll(p, idx)} disabled={createProduct.isPending} className="shrink-0">
+                          <Zap className="w-3.5 h-3.5 mr-1" />Save All
+                        </Button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 mt-2 flex-wrap">
+                      <span className="text-xs text-muted-foreground">Cost: <span className="font-semibold text-foreground">${p.sourcingPrice}</span></span>
+                      <span className="text-muted-foreground text-xs">→</span>
+                      <span className="text-xs text-muted-foreground">Sell: <span className="font-bold text-foreground">${p.tiktokShopPrice}</span></span>
+                      <span className="text-xs bg-green-500/10 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold">{p.profitMargin}% margin</span>
+                      <span className="text-xs text-muted-foreground hidden sm:inline">{p.monthlyRevenue}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expand toggle */}
+                <button
+                  className="w-full flex items-center justify-center gap-1.5 py-2 border-t border-border text-xs text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
+                  onClick={() => setExpanded(expanded === idx ? null : idx)}
+                >
+                  {expanded === idx ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  {expanded === idx ? "Less detail" : "Full launch package ↓"}
+                </button>
+
+                {expanded === idx && (
+                  <div className="border-t border-border p-4 space-y-5">
+                    {/* Description + selling points */}
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Product Description</p>
+                        <p className="text-sm leading-relaxed">{p.fullDescription}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Selling Points</p>
+                        <ul className="space-y-1">
+                          {p.sellingPoints?.map((sp, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-xs">
+                              <CheckCircle2 className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />
+                              {sp}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Pricing intelligence */}
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Pricing Intelligence</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { label: "Source Cost", value: `$${p.sourcingPrice}`, cls: "text-foreground" },
+                          { label: "TikTok Price", value: `$${p.tiktokShopPrice}`, cls: "text-primary font-bold" },
+                          { label: "Flash Sale", value: `$${p.flashSalePrice}`, cls: "text-yellow-600 dark:text-yellow-400" },
+                          { label: "Amazon Comp.", value: `$${p.competitorAmazonPrice}`, cls: "text-muted-foreground line-through" },
+                        ].map(({ label, value, cls }) => (
+                          <div key={label} className="bg-muted/40 rounded-lg p-2.5 text-center">
+                            <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+                            <p className={cn("text-sm font-semibold", cls)}>{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-medium">
+                        💰 <span className="font-bold">${p.profitPerUnit} profit/unit</span> · {p.monthlyRevenue}
+                      </p>
+                    </div>
+
+                    {/* Hook lines */}
+                    {p.hooks?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">🎣 Ready-To-Film Hook Lines</p>
+                        <div className="space-y-1.5">
+                          {p.hooks.slice(0, 5).map((hook, hi) => (
+                            <div key={hi} className="flex items-center gap-2 bg-muted/40 rounded px-3 py-2">
+                              <span className="text-xs font-bold text-primary shrink-0">{hi + 1}.</span>
+                              <p className="text-sm flex-1 italic">"{hook}"</p>
+                              <CopyBtn text={hook} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Video script */}
+                    {p.videoScript && (
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">🎬 Video Script</p>
+                        <div className="bg-muted/40 rounded-lg p-3 relative">
+                          <div className="absolute top-2 right-2"><CopyBtn text={p.videoScript} /></div>
+                          <p className="text-sm pr-7 whitespace-pre-wrap leading-relaxed">{p.videoScript}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Suppliers */}
+                    {p.suppliers?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">🏭 Suppliers</p>
+                        <div className="space-y-2">
+                          {p.suppliers.map((s, si) => (
+                            <div key={si} className="flex items-start justify-between gap-3 border border-border rounded-lg p-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-semibold">{s.name}</span>
+                                  <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">{s.platform}</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-0.5">{s.shippingTime} · MOQ: {s.minOrderQuantity} · ⭐ {s.rating}</p>
+                                <p className="text-xs mt-0.5 text-muted-foreground">{s.notes}</p>
+                              </div>
+                              <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline shrink-0 flex items-center gap-0.5">
+                                Order <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-3 mt-2">
+                          <a href={p.aliexpressSearchUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-0.5">
+                            AliExpress <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                          <a href={p.cjSearchUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-0.5">
+                            CJDropshipping <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hashtags */}
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-primary">{p.hashtags}</p>
+                      <CopyBtn text={p.hashtags} />
+                    </div>
+
+                    {/* Save CTA */}
+                    {!saved.has(idx) ? (
+                      <Button className="w-full" onClick={() => handleSaveAll(p, idx)} disabled={createProduct.isPending} size="lg">
+                        <Zap className="w-4 h-4 mr-2" />
+                        Save Everything — Product + Campaigns
+                      </Button>
+                    ) : (
+                      <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-center">
+                        <p className="text-sm font-semibold text-green-600 dark:text-green-400">✅ Saved to Products + Campaigns</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Check the Products and Campaigns tabs</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -578,7 +917,8 @@ export default function Research() {
       trendScore: idea.trendScore,
       status: "researching",
       notes: `Why it works: ${idea.whyItWorks}\nTarget: ${idea.targetAudience}${idea.sourcingTip ? `\nSourcing: ${idea.sourcingTip}` : ""}`,
-    }}, {
+      imageUrl: idea.imageUrl,
+    } as any}, {
       onSuccess: () => {
         setSaved(s => new Set([...s, idx]));
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
@@ -592,6 +932,16 @@ export default function Research() {
       <div>
         <h1 className="text-2xl font-bold">AI Product Research</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Find trending products, get deep analysis, and launch with one click</p>
+      </div>
+
+      {/* AI Full Launch — zero input */}
+      <FullLaunchPanel />
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Or search by niche</span>
+        <div className="flex-1 h-px bg-border" />
       </div>
 
       {/* Trending Niches */}
@@ -654,10 +1004,35 @@ export default function Research() {
           </h2>
           {ideas.map((idea, idx) => (
             <Card key={idx} data-testid={`card-idea-${idx}`}>
-              <CardContent className="p-4 sm:p-5">
-                <div className="space-y-3">
-                  {/* Header */}
-                  <div className="flex items-start justify-between gap-3">
+              <CardContent className="p-0">
+                {/* Product image strip if available */}
+                {idea.imageUrl && (
+                  <div className="flex gap-0 border-b border-border">
+                    <div className="w-24 h-24 shrink-0 overflow-hidden bg-muted">
+                      <img
+                        src={idea.imageUrl}
+                        alt={idea.name}
+                        className="w-full h-full object-cover"
+                        onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                    </div>
+                    <div className="flex-1 p-3 flex flex-col justify-center">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-bold">{idea.name}</h3>
+                        <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{idea.category}</span>
+                        {idea.competitionLevel && (
+                          <span className={cn("text-xs px-1.5 py-0.5 rounded-full font-medium", competitionBadge[idea.competitionLevel] ?? competitionBadge.medium)}>
+                            {idea.competitionLevel} competition
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{idea.description}</p>
+                    </div>
+                  </div>
+                )}
+                <div className={cn("space-y-3", idea.imageUrl ? "p-4 sm:p-5" : "p-4 sm:p-5")}>
+                  {/* Header — only shown if no image */}
+                  {!idea.imageUrl && <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-bold">{idea.name}</h3>
@@ -675,7 +1050,7 @@ export default function Research() {
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">{idea.description}</p>
                     </div>
-                  </div>
+                  </div>}
 
                   {/* Trend + Financials */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

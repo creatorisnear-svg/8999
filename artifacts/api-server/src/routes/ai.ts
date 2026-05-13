@@ -401,6 +401,43 @@ Return ONLY this JSON:
   catch { req.log.error({ text }, "Failed to parse autopilot response"); res.status(500).json({ error: "Failed to parse AI response" }); }
 });
 
+// ─── Ask AI ───────────────────────────────────────────────────────────────────
+
+router.post("/ai/ask", async (req, res) => {
+  const { message } = req.body as { message: string };
+  if (!message) { res.status(400).json({ error: "message is required" }); return; }
+
+  const response = await aiChat([
+    {
+      role: "system",
+      content: `You are an elite TikTok Shop dropshipping consultant who has personally generated over $5M in sales and coached 1,000+ sellers. You give brutally honest, hyper-specific, immediately actionable advice. You know:
+- Exactly which products are trending right now and why
+- How the TikTok algorithm works in 2025
+- Pricing psychology, supplier negotiation, and margin optimization
+- Content creation strategies that reliably hit 500K+ views
+- How to scale from 0 to $10K/month systematically
+
+You NEVER give vague advice. Every answer includes specific numbers, exact tactics, and real examples.
+Respond in JSON only.`,
+    },
+    {
+      role: "user",
+      content: `Question: ${message}
+
+Return ONLY this JSON:
+{
+  "answer": "Your detailed, specific, actionable answer. Use clear paragraphs. Include specific numbers, examples, and step-by-step instructions where relevant. Minimum 3-5 sentences, maximum 8-10 sentences.",
+  "actionItems": ["Specific thing to do TODAY #1", "Specific action #2", "Specific action #3"],
+  "followUpQuestions": ["Related question they should ask next #1", "Follow-up question #2", "Follow-up question #3"]
+}`,
+    },
+  ], 3000);
+
+  const text = response.choices[0]?.message?.content ?? "{}";
+  try { res.json(parseJson(text)); }
+  catch { req.log.error({ text }, "Failed to parse ask response"); res.status(500).json({ error: "Failed to parse AI response" }); }
+});
+
 // ─── Discover — zero-input trending products ──────────────────────────────────
 
 router.post("/ai/discover", async (req, res) => {

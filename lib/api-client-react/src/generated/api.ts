@@ -20,6 +20,8 @@ import type {
   ApiError,
   AuthLoginInput,
   AuthStatus,
+  AutopilotInput,
+  AutopilotResult,
   Campaign,
   CampaignInput,
   CampaignUpdate,
@@ -38,6 +40,8 @@ import type {
   OpenaiMessage,
   OpenaiMessageInput,
   Product,
+  ProductAnalysisInput,
+  ProductAnalysisResult,
   ProductInput,
   ProductResearchInput,
   ProductResearchResult,
@@ -47,6 +51,7 @@ import type {
   SupplierInput,
   SupplierResearchInput,
   SupplierResearchResult,
+  TrendingNichesResult,
   UpdateShopSettings,
 } from "./api.schemas";
 
@@ -1647,6 +1652,259 @@ export const useAiGenerateListing = <
   TContext
 > => {
   return useMutation(getAiGenerateListingMutationOptions(options));
+};
+
+/**
+ * @summary Get hot trending niches for TikTok dropshipping right now
+ */
+export const getAiTrendingNichesUrl = () => {
+  return `/api/ai/trending-niches`;
+};
+
+export const aiTrendingNiches = async (
+  options?: RequestInit,
+): Promise<TrendingNichesResult> => {
+  return customFetch<TrendingNichesResult>(getAiTrendingNichesUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getAiTrendingNichesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiTrendingNiches>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof aiTrendingNiches>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["aiTrendingNiches"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof aiTrendingNiches>>,
+    void
+  > = () => {
+    return aiTrendingNiches(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AiTrendingNichesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof aiTrendingNiches>>
+>;
+
+export type AiTrendingNichesMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Get hot trending niches for TikTok dropshipping right now
+ */
+export const useAiTrendingNiches = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiTrendingNiches>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof aiTrendingNiches>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getAiTrendingNichesMutationOptions(options));
+};
+
+/**
+ * @summary Deep-dive analysis of a product with launch plan
+ */
+export const getAiProductAnalysisUrl = () => {
+  return `/api/ai/product-analysis`;
+};
+
+export const aiProductAnalysis = async (
+  productAnalysisInput: ProductAnalysisInput,
+  options?: RequestInit,
+): Promise<ProductAnalysisResult> => {
+  return customFetch<ProductAnalysisResult>(getAiProductAnalysisUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(productAnalysisInput),
+  });
+};
+
+export const getAiProductAnalysisMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiProductAnalysis>>,
+    TError,
+    { data: BodyType<ProductAnalysisInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof aiProductAnalysis>>,
+  TError,
+  { data: BodyType<ProductAnalysisInput> },
+  TContext
+> => {
+  const mutationKey = ["aiProductAnalysis"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof aiProductAnalysis>>,
+    { data: BodyType<ProductAnalysisInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return aiProductAnalysis(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AiProductAnalysisMutationResult = NonNullable<
+  Awaited<ReturnType<typeof aiProductAnalysis>>
+>;
+export type AiProductAnalysisMutationBody = BodyType<ProductAnalysisInput>;
+export type AiProductAnalysisMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Deep-dive analysis of a product with launch plan
+ */
+export const useAiProductAnalysis = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiProductAnalysis>>,
+    TError,
+    { data: BodyType<ProductAnalysisInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof aiProductAnalysis>>,
+  TError,
+  { data: BodyType<ProductAnalysisInput> },
+  TContext
+> => {
+  return useMutation(getAiProductAnalysisMutationOptions(options));
+};
+
+/**
+ * @summary One-shot autopilot — generates suppliers and content for a product
+ */
+export const getAiAutopilotUrl = () => {
+  return `/api/ai/autopilot`;
+};
+
+export const aiAutopilot = async (
+  autopilotInput: AutopilotInput,
+  options?: RequestInit,
+): Promise<AutopilotResult> => {
+  return customFetch<AutopilotResult>(getAiAutopilotUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(autopilotInput),
+  });
+};
+
+export const getAiAutopilotMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiAutopilot>>,
+    TError,
+    { data: BodyType<AutopilotInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof aiAutopilot>>,
+  TError,
+  { data: BodyType<AutopilotInput> },
+  TContext
+> => {
+  const mutationKey = ["aiAutopilot"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof aiAutopilot>>,
+    { data: BodyType<AutopilotInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return aiAutopilot(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AiAutopilotMutationResult = NonNullable<
+  Awaited<ReturnType<typeof aiAutopilot>>
+>;
+export type AiAutopilotMutationBody = BodyType<AutopilotInput>;
+export type AiAutopilotMutationError = ErrorType<unknown>;
+
+/**
+ * @summary One-shot autopilot — generates suppliers and content for a product
+ */
+export const useAiAutopilot = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiAutopilot>>,
+    TError,
+    { data: BodyType<AutopilotInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof aiAutopilot>>,
+  TError,
+  { data: BodyType<AutopilotInput> },
+  TContext
+> => {
+  return useMutation(getAiAutopilotMutationOptions(options));
 };
 
 /**

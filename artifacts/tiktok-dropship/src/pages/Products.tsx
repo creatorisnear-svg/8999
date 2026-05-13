@@ -163,7 +163,7 @@ export default function Products() {
                       )}
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs text-muted-foreground">Trend:</span>
-                        <TrendBar score={p.trendScore} />
+                        <TrendBar score={p.trendScore ?? 0} />
                       </div>
                     </div>
                   </div>

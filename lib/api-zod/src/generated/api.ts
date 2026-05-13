@@ -377,6 +377,62 @@ export const AiGenerateListingResponse = zod.object({
 });
 
 /**
+ * @summary Get hot trending niches for TikTok dropshipping right now
+ */
+export const AiTrendingNichesResponse = zod.object({
+  niches: zod.array(
+    zod.object({
+      name: zod.string(),
+      emoji: zod.string(),
+      description: zod.string(),
+      opportunityScore: zod.number(),
+      competitionLevel: zod.string(),
+      avgProfitMargin: zod.number(),
+      whyNow: zod.string(),
+      exampleProducts: zod.array(zod.string()),
+    }),
+  ),
+});
+
+/**
+ * @summary Deep-dive analysis of a product with launch plan
+ */
+export const AiProductAnalysisBody = zod.object({
+  productName: zod.string(),
+  productDescription: zod.string(),
+  estimatedCost: zod.number().nullish(),
+  estimatedSellingPrice: zod.number().nullish(),
+});
+
+export const AiProductAnalysisResponse = zod.object({
+  verdict: zod.string(),
+  verdictReason: zod.string(),
+  opportunityScore: zod.number(),
+  businessPlan: zod.record(zod.string(), zod.unknown()).optional(),
+  pricingStrategy: zod.record(zod.string(), zod.unknown()).optional(),
+  launchPlan: zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  contentAngles: zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  risks: zod.array(zod.string()).optional(),
+  competitorWeaknesses: zod.string().optional(),
+  winningStrategy: zod.string().optional(),
+});
+
+/**
+ * @summary One-shot autopilot — generates suppliers and content for a product
+ */
+export const AiAutopilotBody = zod.object({
+  productName: zod.string(),
+  productDescription: zod.string(),
+  targetAudience: zod.string().nullish(),
+});
+
+export const AiAutopilotResponse = zod.object({
+  suppliers: zod.array(zod.record(zod.string(), zod.unknown())),
+  contentPieces: zod.array(zod.record(zod.string(), zod.unknown())),
+  launchChecklist: zod.array(zod.string()),
+});
+
+/**
  * @summary Get dashboard overview stats
  */
 export const GetDashboardStatsResponse = zod.object({

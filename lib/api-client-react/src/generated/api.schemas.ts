@@ -424,3 +424,62 @@ export interface UpdateShopSettings {
   region?: string | null;
   accessToken?: string | null;
 }
+
+export interface TrendingNiche {
+  name: string;
+  emoji: string;
+  description: string;
+  opportunityScore: number;
+  competitionLevel: string;
+  avgProfitMargin: number;
+  whyNow: string;
+  exampleProducts: string[];
+}
+
+export interface TrendingNichesResult {
+  niches: TrendingNiche[];
+}
+
+export interface ProductAnalysisInput {
+  productName: string;
+  productDescription: string;
+  estimatedCost?: number | null;
+  estimatedSellingPrice?: number | null;
+}
+
+export type ProductAnalysisResultBusinessPlan = { [key: string]: unknown };
+
+export type ProductAnalysisResultPricingStrategy = { [key: string]: unknown };
+
+export type ProductAnalysisResultLaunchPlanItem = { [key: string]: unknown };
+
+export type ProductAnalysisResultContentAnglesItem = { [key: string]: unknown };
+
+export interface ProductAnalysisResult {
+  verdict: string;
+  verdictReason: string;
+  opportunityScore: number;
+  businessPlan?: ProductAnalysisResultBusinessPlan;
+  pricingStrategy?: ProductAnalysisResultPricingStrategy;
+  launchPlan?: ProductAnalysisResultLaunchPlanItem[];
+  contentAngles?: ProductAnalysisResultContentAnglesItem[];
+  risks?: string[];
+  competitorWeaknesses?: string;
+  winningStrategy?: string;
+}
+
+export interface AutopilotInput {
+  productName: string;
+  productDescription: string;
+  targetAudience?: string | null;
+}
+
+export type AutopilotResultSuppliersItem = { [key: string]: unknown };
+
+export type AutopilotResultContentPiecesItem = { [key: string]: unknown };
+
+export interface AutopilotResult {
+  suppliers: AutopilotResultSuppliersItem[];
+  contentPieces: AutopilotResultContentPiecesItem[];
+  launchChecklist: string[];
+}

@@ -373,6 +373,57 @@ paths:
               schema:
                 $ref: "#/components/schemas/ListingGenerationResult"
 
+  /ai/trending-niches:
+    post:
+      operationId: aiTrendingNiches
+      tags: [ai]
+      summary: Get hot trending niches for TikTok dropshipping right now
+      responses:
+        "200":
+          description: Trending niches list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrendingNichesResult"
+
+  /ai/product-analysis:
+    post:
+      operationId: aiProductAnalysis
+      tags: [ai]
+      summary: Deep-dive analysis of a product with launch plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductAnalysisInput"
+      responses:
+        "200":
+          description: Full product analysis and launch plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductAnalysisResult"
+
+  /ai/autopilot:
+    post:
+      operationId: aiAutopilot
+      tags: [ai]
+      summary: One-shot autopilot — generates suppliers and content for a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutopilotInput"
+      responses:
+        "200":
+          description: Suppliers and ready-to-post content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutopilotResult"
+
   /dashboard/stats:
     get:
       operationId: getDashboardStats
@@ -1213,3 +1264,135 @@ components:
         accessToken:
           type: string
           nullable: true
+
+    TrendingNiche:
+      type: object
+      properties:
+        name:
+          type: string
+        emoji:
+          type: string
+        description:
+          type: string
+        opportunityScore:
+          type: integer
+        competitionLevel:
+          type: string
+        avgProfitMargin:
+          type: integer
+        whyNow:
+          type: string
+        exampleProducts:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - emoji
+        - description
+        - opportunityScore
+        - competitionLevel
+        - avgProfitMargin
+        - whyNow
+        - exampleProducts
+
+    TrendingNichesResult:
+      type: object
+      properties:
+        niches:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendingNiche"
+      required:
+        - niches
+
+    ProductAnalysisInput:
+      type: object
+      properties:
+        productName:
+          type: string
+        productDescription:
+          type: string
+        estimatedCost:
+          type: number
+          nullable: true
+        estimatedSellingPrice:
+          type: number
+          nullable: true
+      required:
+        - productName
+        - productDescription
+
+    ProductAnalysisResult:
+      type: object
+      properties:
+        verdict:
+          type: string
+        verdictReason:
+          type: string
+        opportunityScore:
+          type: integer
+        businessPlan:
+          type: object
+          additionalProperties: true
+        pricingStrategy:
+          type: object
+          additionalProperties: true
+        launchPlan:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        contentAngles:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        risks:
+          type: array
+          items:
+            type: string
+        competitorWeaknesses:
+          type: string
+        winningStrategy:
+          type: string
+      required:
+        - verdict
+        - verdictReason
+        - opportunityScore
+
+    AutopilotInput:
+      type: object
+      properties:
+        productName:
+          type: string
+        productDescription:
+          type: string
+        targetAudience:
+          type: string
+          nullable: true
+      required:
+        - productName
+        - productDescription
+
+    AutopilotResult:
+      type: object
+      properties:
+        suppliers:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        contentPieces:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        launchChecklist:
+          type: array
+          items:
+            type: string
+      required:
+        - suppliers
+        - contentPieces
+        - launchChecklist

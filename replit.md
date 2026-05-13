@@ -1,6 +1,6 @@
-# [Project name]
+# TikTok Drop — AI Dropshipping Assistant
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+An AI-powered TikTok Shop dropshipping assistant. Research trending products, find suppliers, generate viral TikTok marketing content, and manage your product pipeline from a single dashboard.
 
 ## Run & Operate
 
@@ -14,23 +14,39 @@ _Replace the heading above with the project's name, and this line with one sente
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
+- Frontend: React + Vite (artifact: `tiktok-dropship` at `/`)
+- API: Express 5 (artifact: `api-server` at `/api`)
 - DB: PostgreSQL + Drizzle ORM
+- AI: OpenAI via Replit AI Integrations proxy (`AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY`)
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/db/src/schema/` — Drizzle ORM table definitions (products, suppliers, campaigns)
+- `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth for API contract)
+- `lib/api-client-react/src/generated/` — Generated React Query hooks
+- `artifacts/api-server/src/routes/` — Express route handlers
+- `artifacts/tiktok-dropship/src/pages/` — React page components
+- `artifacts/tiktok-dropship/src/components/Layout.tsx` — Sidebar nav layout
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Contract-first API: OpenAPI spec → Orval codegen → typed React Query hooks
+- All AI calls are server-side (Express routes call OpenAI via Replit AI proxy)
+- AI responses ask for JSON output and are parsed from the LLM's text response
+- TikTok-inspired red/cyan design with dark-mode-ready CSS variables
+- Products, suppliers, and campaigns are all stored in PostgreSQL for persistence
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Dashboard**: Live stats (products, suppliers, campaigns, avg. profit margin), recent products and campaigns
+- **Products**: Full product tracker with status (researching/active/paused/discontinued), profit margin calculator
+- **AI Research**: One-click AI product research — returns trending product ideas with demand scores and sourcing tips
+- **Suppliers**: Supplier directory with platform, shipping time, rating, and MOQ
+- **Campaigns**: Marketing content library with status workflow (draft → ready → posted)
+- **AI Generator**: Generate TikTok captions, scripts, and hook lines, or full product listings; save to Campaigns
 
 ## User preferences
 
@@ -38,7 +54,9 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- AI routes parse JSON from LLM text output — if OpenAI changes format, parsing may break
+- `pnpm --filter @workspace/api-spec run codegen` must be re-run after any OpenAPI spec changes
+- Do NOT run `pnpm dev` at workspace root — use workflow restart instead
 
 ## Pointers
 

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "TikTok Drop"
+version = "1.0.0"
+id = "artifacts/tiktok-dropship"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22444
+
+[services.development]
+run = "pnpm --filter @workspace/tiktok-dropship run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tiktok-dropship", "run", "build" ]
+publicDir = "artifacts/tiktok-dropship/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22444"
+BASE_PATH = "/"

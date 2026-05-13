@@ -3,13 +3,25 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: TikTok Dropship AI Assistant API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: products
+    description: Saved products for dropshipping
+  - name: suppliers
+    description: Supplier management
+  - name: campaigns
+    description: Marketing campaigns and content
+  - name: ai
+    description: AI-powered research and generation
+  - name: dashboard
+    description: Dashboard stats
+  - name: openai
+    description: OpenAI AI chat, image, and audio operations
 paths:
   /healthz:
     get:
@@ -24,6 +36,489 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all saved products
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Save a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    patch:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /suppliers:
+    get:
+      operationId: listSuppliers
+      tags: [suppliers]
+      summary: List all suppliers
+      responses:
+        "200":
+          description: List of suppliers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Supplier"
+    post:
+      operationId: createSupplier
+      tags: [suppliers]
+      summary: Save a supplier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupplierInput"
+      responses:
+        "201":
+          description: Created supplier
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+
+  /suppliers/{id}:
+    get:
+      operationId: getSupplier
+      tags: [suppliers]
+      summary: Get a supplier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Supplier
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supplier"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteSupplier
+      tags: [suppliers]
+      summary: Delete a supplier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /campaigns:
+    get:
+      operationId: listCampaigns
+      tags: [campaigns]
+      summary: List all marketing campaigns
+      responses:
+        "200":
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Campaign"
+    post:
+      operationId: createCampaign
+      tags: [campaigns]
+      summary: Create a marketing campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignInput"
+      responses:
+        "201":
+          description: Created campaign
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+
+  /campaigns/{id}:
+    get:
+      operationId: getCampaign
+      tags: [campaigns]
+      summary: Get a campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Campaign
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    patch:
+      operationId: updateCampaign
+      tags: [campaigns]
+      summary: Update a campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignUpdate"
+      responses:
+        "200":
+          description: Updated campaign
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+    delete:
+      operationId: deleteCampaign
+      tags: [campaigns]
+      summary: Delete a campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /ai/research-products:
+    post:
+      operationId: aiResearchProducts
+      tags: [ai]
+      summary: AI-generates trending product ideas for TikTok dropshipping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductResearchInput"
+      responses:
+        "200":
+          description: AI-generated product ideas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResearchResult"
+
+  /ai/find-suppliers:
+    post:
+      operationId: aiFindSuppliers
+      tags: [ai]
+      summary: AI-finds supplier recommendations for a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupplierResearchInput"
+      responses:
+        "200":
+          description: AI-generated supplier recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplierResearchResult"
+
+  /ai/generate-content:
+    post:
+      operationId: aiGenerateContent
+      tags: [ai]
+      summary: AI-generates TikTok marketing content for a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContentGenerationInput"
+      responses:
+        "200":
+          description: AI-generated marketing content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentGenerationResult"
+
+  /ai/generate-listing:
+    post:
+      operationId: aiGenerateListing
+      tags: [ai]
+      summary: AI-generates a full TikTok Shop product listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingGenerationInput"
+      responses:
+        "200":
+          description: AI-generated product listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingGenerationResult"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard overview stats
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /openai/conversations:
+    get:
+      operationId: listOpenaiConversations
+      tags: [openai]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiConversation"
+    post:
+      operationId: createOpenaiConversation
+      tags: [openai]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversation"
+
+  /openai/conversations/{id}:
+    get:
+      operationId: getOpenaiConversation
+      tags: [openai]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+    delete:
+      operationId: deleteOpenaiConversation
+      tags: [openai]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+
+  /openai/conversations/{id}/messages:
+    get:
+      operationId: listOpenaiMessages
+      tags: [openai]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiMessage"
+    post:
+      operationId: sendOpenaiMessage
+      tags: [openai]
+      summary: Send a text message and receive a streaming text response
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant text chunks
+          content:
+            text/event-stream: {}
+
+  /openai/generate-image:
+    post:
+      operationId: generateOpenaiImage
+      tags: [openai]
+      summary: Generate an image from a text prompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiImageInput"
+      responses:
+        "200":
+          description: Generated image data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiImageOutput"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +529,541 @@ components:
       required:
         - status
 
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        estimatedCost:
+          type: ["number", "null"]
+        estimatedSellingPrice:
+          type: ["number", "null"]
+        profitMargin:
+          type: ["number", "null"]
+        trendScore:
+          type: ["integer", "null"]
+        status:
+          type: string
+          enum: [researching, active, paused, archived]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - description
+        - category
+        - status
+        - createdAt
+        - updatedAt
+
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        category:
+          type: string
+        estimatedCost:
+          type: ["number", "null"]
+        estimatedSellingPrice:
+          type: ["number", "null"]
+        trendScore:
+          type: ["integer", "null"]
+        status:
+          type: string
+          enum: [researching, active, paused, archived]
+        notes:
+          type: ["string", "null"]
+      required:
+        - name
+        - description
+        - category
+
+    ProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        estimatedCost:
+          type: ["number", "null"]
+        estimatedSellingPrice:
+          type: ["number", "null"]
+        trendScore:
+          type: ["integer", "null"]
+        status:
+          type: string
+          enum: [researching, active, paused, archived]
+        notes:
+          type: ["string", "null"]
+
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        platform:
+          type: string
+        url:
+          type: ["string", "null"]
+        productCategory:
+          type: string
+        rating:
+          type: ["number", "null"]
+        minOrderQuantity:
+          type: ["integer", "null"]
+        shippingTime:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - platform
+        - productCategory
+        - createdAt
+
+    SupplierInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        platform:
+          type: string
+        url:
+          type: ["string", "null"]
+        productCategory:
+          type: string
+        rating:
+          type: ["number", "null"]
+        minOrderQuantity:
+          type: ["integer", "null"]
+        shippingTime:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+      required:
+        - name
+        - platform
+        - productCategory
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        contentType:
+          type: string
+          enum: [caption, script, hooks, listing, full_campaign]
+        content:
+          type: string
+        hashtags:
+          type: ["string", "null"]
+        targetAudience:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [draft, ready, posted]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - contentType
+        - content
+        - status
+        - createdAt
+
+    CampaignInput:
+      type: object
+      properties:
+        productId:
+          type: ["integer", "null"]
+        title:
+          type: string
+          minLength: 1
+        contentType:
+          type: string
+          enum: [caption, script, hooks, listing, full_campaign]
+        content:
+          type: string
+        hashtags:
+          type: ["string", "null"]
+        targetAudience:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [draft, ready, posted]
+      required:
+        - title
+        - contentType
+        - content
+
+    CampaignUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        contentType:
+          type: string
+          enum: [caption, script, hooks, listing, full_campaign]
+        content:
+          type: string
+        hashtags:
+          type: ["string", "null"]
+        targetAudience:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [draft, ready, posted]
+
+    ProductResearchInput:
+      type: object
+      properties:
+        niche:
+          type: string
+          description: Product niche or category to research
+        budget:
+          type: ["number", "null"]
+          description: Budget for sourcing in USD
+        count:
+          type: integer
+          default: 5
+          description: Number of product ideas to generate
+      required:
+        - niche
+
+    ProductResearchResult:
+      type: object
+      properties:
+        ideas:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductIdea"
+      required:
+        - ideas
+
+    ProductIdea:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        estimatedCost:
+          type: number
+        estimatedSellingPrice:
+          type: number
+        profitMargin:
+          type: number
+        trendScore:
+          type: integer
+        whyItWorks:
+          type: string
+        targetAudience:
+          type: string
+      required:
+        - name
+        - description
+        - category
+        - estimatedCost
+        - estimatedSellingPrice
+        - profitMargin
+        - trendScore
+        - whyItWorks
+        - targetAudience
+
+    SupplierResearchInput:
+      type: object
+      properties:
+        productName:
+          type: string
+        productCategory:
+          type: string
+        count:
+          type: integer
+          default: 5
+      required:
+        - productName
+        - productCategory
+
+    SupplierResearchResult:
+      type: object
+      properties:
+        suppliers:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupplierIdea"
+      required:
+        - suppliers
+
+    SupplierIdea:
+      type: object
+      properties:
+        name:
+          type: string
+        platform:
+          type: string
+        url:
+          type: string
+        productCategory:
+          type: string
+        rating:
+          type: number
+        minOrderQuantity:
+          type: integer
+        shippingTime:
+          type: string
+        notes:
+          type: string
+        whyRecommended:
+          type: string
+      required:
+        - name
+        - platform
+        - productCategory
+        - whyRecommended
+
+    ContentGenerationInput:
+      type: object
+      properties:
+        productName:
+          type: string
+        productDescription:
+          type: string
+        contentType:
+          type: string
+          enum: [caption, script, hooks, full_campaign]
+        targetAudience:
+          type: ["string", "null"]
+        tone:
+          type: string
+          enum: [funny, trendy, educational, emotional, urgency]
+          default: trendy
+      required:
+        - productName
+        - productDescription
+        - contentType
+
+    ContentGenerationResult:
+      type: object
+      properties:
+        content:
+          type: string
+        hashtags:
+          type: string
+        tips:
+          type: string
+      required:
+        - content
+        - hashtags
+        - tips
+
+    ListingGenerationInput:
+      type: object
+      properties:
+        productName:
+          type: string
+        productDescription:
+          type: string
+        targetAudience:
+          type: ["string", "null"]
+        keyFeatures:
+          type: ["string", "null"]
+      required:
+        - productName
+        - productDescription
+
+    ListingGenerationResult:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        bulletPoints:
+          type: array
+          items:
+            type: string
+        hashtags:
+          type: string
+        callToAction:
+          type: string
+      required:
+        - title
+        - description
+        - bulletPoints
+        - hashtags
+        - callToAction
+
+    DashboardStats:
+      type: object
+      properties:
+        totalProducts:
+          type: integer
+        activeProducts:
+          type: integer
+        totalSuppliers:
+          type: integer
+        totalCampaigns:
+          type: integer
+        readyCampaigns:
+          type: integer
+        postedCampaigns:
+          type: integer
+        avgProfitMargin:
+          type: ["number", "null"]
+      required:
+        - totalProducts
+        - activeProducts
+        - totalSuppliers
+        - totalCampaigns
+        - readyCampaigns
+        - postedCampaigns
+
+    OpenaiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+
+    OpenaiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+
+    OpenaiConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+
+    OpenaiMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+
+    OpenaiVoiceMessageInput:
+      type: object
+      properties:
+        audio:
+          type: string
+          description: Base64-encoded audio data
+      required:
+        - audio
+
+    OpenaiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenaiMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+
+    OpenaiImageInput:
+      type: object
+      properties:
+        prompt:
+          type: string
+        size:
+          type: string
+          enum: ["1024x1024", "512x512", "256x256"]
+      required:
+        - prompt
+
+    OpenaiImageOutput:
+      type: object
+      properties:
+        b64_json:
+          type: string
+      required:
+        - b64_json
+
+    OpenaiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

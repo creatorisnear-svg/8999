@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { openai, AI_MODEL } from "@workspace/integrations-openai-ai-server";
 import {
   AiResearchProductsBody,
   AiFindSuppliersBody,
@@ -26,7 +26,7 @@ router.post("/ai/research-products", async (req, res) => {
   const budgetClause = budget ? ` Sourcing budget: under $${budget}/unit.` : "";
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     max_completion_tokens: 6000,
     messages: [
       {
@@ -91,7 +91,7 @@ router.post("/ai/find-suppliers", async (req, res) => {
   const { productName, productCategory, count = 5 } = parsed.data;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     max_completion_tokens: 4096,
     messages: [
       {
@@ -168,7 +168,7 @@ Use proven formats: POV, numbers, controversy, "this changed my life", ASMR cues
   const instruction = typeInstructions[contentType] ?? "TikTok marketing content";
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     max_completion_tokens: 3000,
     messages: [
       {
@@ -215,7 +215,7 @@ router.post("/ai/generate-listing", async (req, res) => {
   const featuresClause = keyFeatures ? ` Features: ${keyFeatures}.` : "";
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     max_completion_tokens: 3000,
     messages: [
       {
@@ -255,7 +255,7 @@ Return ONLY this JSON:
 
 router.post("/ai/trending-niches", async (_req, res) => {
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     max_completion_tokens: 3000,
     messages: [
       {
@@ -315,7 +315,7 @@ router.post("/ai/product-analysis", async (req, res) => {
     : "";
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     max_completion_tokens: 6000,
     messages: [
       {
@@ -390,7 +390,7 @@ router.post("/ai/autopilot", async (req, res) => {
   const audienceClause = targetAudience ? ` Target audience: ${targetAudience}.` : "";
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: AI_MODEL,
     max_completion_tokens: 6000,
     messages: [
       {

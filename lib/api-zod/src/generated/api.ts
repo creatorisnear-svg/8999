@@ -433,6 +433,78 @@ export const AiAutopilotResponse = zod.object({
 });
 
 /**
+ * @summary Zero-input product discovery — what should I sell right now?
+ */
+export const AiDiscoverResponse = zod.object({
+  products: zod.array(
+    zod.object({
+      name: zod.string(),
+      emoji: zod.string(),
+      description: zod.string(),
+      whyNow: zod.string(),
+      estimatedCost: zod.number(),
+      estimatedSellingPrice: zod.number(),
+      profitMargin: zod.number(),
+      trendScore: zod.number(),
+      viralAngle: zod.string(),
+      firstHook: zod.string(),
+      sourcingKeyword: zod.string(),
+      category: zod.string(),
+    }),
+  ),
+  marketContext: zod.string(),
+});
+
+/**
+ * @summary Full multi-week marketing strategy for a product
+ */
+export const AiMarketingStrategyBody = zod.object({
+  productName: zod.string(),
+  productDescription: zod.string(),
+  budget: zod.string().nullish(),
+  goal: zod.string().nullish(),
+});
+
+export const AiMarketingStrategyResponse = zod.object({
+  summary: zod.string(),
+  targetAudience: zod.record(zod.string(), zod.unknown()),
+  contentStrategy: zod.record(zod.string(), zod.unknown()),
+  weeklyPlan: zod.array(zod.record(zod.string(), zod.unknown())),
+  tiktokTactics: zod.array(zod.string()),
+  hashtagStrategy: zod.record(zod.string(), zod.unknown()).optional(),
+  budgetAllocation: zod.record(zod.string(), zod.unknown()).optional(),
+  kpis: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary 7-day TikTok content calendar for a product
+ */
+export const AiContentCalendarBody = zod.object({
+  productName: zod.string(),
+  productDescription: zod.string(),
+  postsPerDay: zod.number().nullish(),
+});
+
+export const AiContentCalendarResponse = zod.object({
+  days: zod.array(zod.record(zod.string(), zod.unknown())),
+  weekSummary: zod.string(),
+  proTips: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Ask the AI anything about TikTok dropshipping
+ */
+export const AiAskBody = zod.object({
+  message: zod.string(),
+});
+
+export const AiAskResponse = zod.object({
+  answer: zod.string(),
+  actionItems: zod.array(zod.string()).optional(),
+  followUpQuestions: zod.array(zod.string()).optional(),
+});
+
+/**
  * @summary Get dashboard overview stats
  */
 export const GetDashboardStatsResponse = zod.object({

@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./aiAskInput";
+export * from "./aiAskResult";
 export * from "./apiError";
 export * from "./authLoginInput";
 export * from "./authStatus";
@@ -22,14 +24,26 @@ export * from "./campaignStatus";
 export * from "./campaignUpdate";
 export * from "./campaignUpdateContentType";
 export * from "./campaignUpdateStatus";
+export * from "./contentCalendarInput";
+export * from "./contentCalendarResult";
+export * from "./contentCalendarResultDaysItem";
 export * from "./contentGenerationInput";
 export * from "./contentGenerationInputContentType";
 export * from "./contentGenerationInputTone";
 export * from "./contentGenerationResult";
 export * from "./dashboardStats";
+export * from "./discoverProduct";
+export * from "./discoverResult";
 export * from "./healthStatus";
 export * from "./listingGenerationInput";
 export * from "./listingGenerationResult";
+export * from "./marketingStrategyInput";
+export * from "./marketingStrategyResult";
+export * from "./marketingStrategyResultBudgetAllocation";
+export * from "./marketingStrategyResultContentStrategy";
+export * from "./marketingStrategyResultHashtagStrategy";
+export * from "./marketingStrategyResultTargetAudience";
+export * from "./marketingStrategyResultWeeklyPlanItem";
 export * from "./openaiConversation";
 export * from "./openaiConversationInput";
 export * from "./openaiConversationWithMessages";

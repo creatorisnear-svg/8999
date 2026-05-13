@@ -424,6 +424,76 @@ paths:
               schema:
                 $ref: "#/components/schemas/AutopilotResult"
 
+  /ai/discover:
+    post:
+      operationId: aiDiscover
+      tags: [ai]
+      summary: Zero-input product discovery — what should I sell right now?
+      responses:
+        "200":
+          description: Trending products to sell right now
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoverResult"
+
+  /ai/marketing-strategy:
+    post:
+      operationId: aiMarketingStrategy
+      tags: [ai]
+      summary: Full multi-week marketing strategy for a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarketingStrategyInput"
+      responses:
+        "200":
+          description: Complete marketing strategy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketingStrategyResult"
+
+  /ai/content-calendar:
+    post:
+      operationId: aiContentCalendar
+      tags: [ai]
+      summary: 7-day TikTok content calendar for a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContentCalendarInput"
+      responses:
+        "200":
+          description: 7-day content calendar
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentCalendarResult"
+
+  /ai/ask:
+    post:
+      operationId: aiAsk
+      tags: [ai]
+      summary: Ask the AI anything about TikTok dropshipping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiAskInput"
+      responses:
+        "200":
+          description: AI answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiAskResult"
+
   /dashboard/stats:
     get:
       operationId: getDashboardStats
@@ -1396,3 +1466,167 @@ components:
         - suppliers
         - contentPieces
         - launchChecklist
+
+    DiscoverProduct:
+      type: object
+      properties:
+        name:
+          type: string
+        emoji:
+          type: string
+        description:
+          type: string
+        whyNow:
+          type: string
+        estimatedCost:
+          type: number
+        estimatedSellingPrice:
+          type: number
+        profitMargin:
+          type: integer
+        trendScore:
+          type: integer
+        viralAngle:
+          type: string
+        firstHook:
+          type: string
+        sourcingKeyword:
+          type: string
+        category:
+          type: string
+      required:
+        - name
+        - emoji
+        - description
+        - whyNow
+        - estimatedCost
+        - estimatedSellingPrice
+        - profitMargin
+        - trendScore
+        - viralAngle
+        - firstHook
+        - sourcingKeyword
+        - category
+
+    DiscoverResult:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiscoverProduct"
+        marketContext:
+          type: string
+      required:
+        - products
+        - marketContext
+
+    MarketingStrategyInput:
+      type: object
+      properties:
+        productName:
+          type: string
+        productDescription:
+          type: string
+        budget:
+          type: string
+          nullable: true
+        goal:
+          type: string
+          nullable: true
+      required:
+        - productName
+        - productDescription
+
+    MarketingStrategyResult:
+      type: object
+      properties:
+        summary:
+          type: string
+        targetAudience:
+          type: object
+          additionalProperties: true
+        contentStrategy:
+          type: object
+          additionalProperties: true
+        weeklyPlan:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        tiktokTactics:
+          type: array
+          items:
+            type: string
+        hashtagStrategy:
+          type: object
+          additionalProperties: true
+        budgetAllocation:
+          type: object
+          additionalProperties: true
+        kpis:
+          type: array
+          items:
+            type: string
+      required:
+        - summary
+        - targetAudience
+        - contentStrategy
+        - weeklyPlan
+        - tiktokTactics
+
+    ContentCalendarInput:
+      type: object
+      properties:
+        productName:
+          type: string
+        productDescription:
+          type: string
+        postsPerDay:
+          type: integer
+          nullable: true
+      required:
+        - productName
+        - productDescription
+
+    ContentCalendarResult:
+      type: object
+      properties:
+        days:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        weekSummary:
+          type: string
+        proTips:
+          type: array
+          items:
+            type: string
+      required:
+        - days
+        - weekSummary
+
+    AiAskInput:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    AiAskResult:
+      type: object
+      properties:
+        answer:
+          type: string
+        actionItems:
+          type: array
+          items:
+            type: string
+        followUpQuestions:
+          type: array
+          items:
+            type: string
+      required:
+        - answer

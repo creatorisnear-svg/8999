@@ -11,18 +11,20 @@ import {
   Settings,
   Menu,
   X,
+  BrainCircuit,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/products", label: "Products", icon: Package },
-  { href: "/research", label: "AI Research", icon: Sparkles },
-  { href: "/suppliers", label: "Suppliers", icon: Truck },
-  { href: "/campaigns", label: "Campaigns", icon: Megaphone },
-  { href: "/generator", label: "AI Generator", icon: Wand2 },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, highlight: false },
+  { href: "/advisor", label: "AI Advisor", icon: BrainCircuit, highlight: true },
+  { href: "/research", label: "AI Research", icon: Sparkles, highlight: false },
+  { href: "/products", label: "Products", icon: Package, highlight: false },
+  { href: "/suppliers", label: "Suppliers", icon: Truck, highlight: false },
+  { href: "/campaigns", label: "Campaigns", icon: Megaphone, highlight: false },
+  { href: "/generator", label: "AI Generator", icon: Wand2, highlight: false },
+  { href: "/settings", label: "Settings", icon: Settings, highlight: false },
 ];
 
 function NavContent({
@@ -48,7 +50,7 @@ function NavContent({
         </div>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, label, icon: Icon, highlight }) => {
           const isActive =
             href === "/" ? location === "/" : location.startsWith(href);
           return (
@@ -60,16 +62,23 @@ function NavContent({
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                    : highlight
+                      ? "text-primary hover:bg-primary/10"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
                 )}
               >
                 <Icon
                   className={cn(
                     "w-4 h-4 flex-shrink-0",
-                    isActive ? "text-primary" : "",
+                    isActive ? "text-primary" : highlight ? "text-primary" : "",
                   )}
                 />
                 {label}
+                {highlight && !isActive && (
+                  <span className="ml-auto text-[10px] font-semibold bg-primary/15 text-primary px-1.5 py-0.5 rounded-full">
+                    NEW
+                  </span>
+                )}
               </div>
             </Link>
           );

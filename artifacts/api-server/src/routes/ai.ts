@@ -401,4 +401,238 @@ Return ONLY this JSON:
   catch { req.log.error({ text }, "Failed to parse autopilot response"); res.status(500).json({ error: "Failed to parse AI response" }); }
 });
 
+// ─── Discover — zero-input trending products ──────────────────────────────────
+
+router.post("/ai/discover", async (req, res) => {
+  const response = await aiChat([
+    {
+      role: "system",
+      content: `You are a TikTok Shop expert who monitors viral trends daily and has helped 500+ sellers find winning products. You know exactly what is selling on TikTok RIGHT NOW — not yesterday, not last month. You respond only with valid JSON.`,
+    },
+    {
+      role: "user",
+      content: `I want to start dropshipping on TikTok Shop TODAY. What 5 products should I sell right now to make money within 30 days?
+
+Requirements:
+- Products that are actively going viral on TikTok right now
+- Can be sourced from AliExpress or CJDropshipping for under $15
+- Have at least 65% profit margin
+- Have an obvious, easy-to-film TikTok content angle
+- Real, specific product names — not just "LED lights" but exactly what type
+- Mix of different niches for variety
+
+Return ONLY this JSON:
+{
+  "marketContext": "1-2 sentences on what's trending on TikTok Shop right now and why",
+  "products": [
+    {
+      "name": "Very specific product name",
+      "emoji": "🔥",
+      "category": "Category",
+      "description": "Why this product is blowing up — specific and compelling",
+      "whyNow": "Exactly why this is the moment to sell this — trend, season, viral moment",
+      "estimatedCost": 7.50,
+      "estimatedSellingPrice": 29.99,
+      "profitMargin": 75,
+      "trendScore": 92,
+      "viralAngle": "The single best TikTok video concept for this product",
+      "firstHook": "The exact first line to say in your first video",
+      "sourcingKeyword": "Exact search term to use on AliExpress/CJDropshipping"
+    }
+  ]
+}`,
+    },
+  ], 5000);
+
+  const text = response.choices[0]?.message?.content ?? "{}";
+  try { res.json(parseJson(text)); }
+  catch { req.log.error({ text }, "Failed to parse discover response"); res.status(500).json({ error: "Failed to parse AI response" }); }
+});
+
+// ─── Marketing Strategy ───────────────────────────────────────────────────────
+
+router.post("/ai/marketing-strategy", async (req, res) => {
+  const { productName, productDescription, budget, goal } = req.body as {
+    productName: string;
+    productDescription: string;
+    budget?: string;
+    goal?: string;
+  };
+  if (!productName) { res.status(400).json({ error: "productName is required" }); return; }
+
+  const response = await aiChat([
+    {
+      role: "system",
+      content: `You are a TikTok Shop growth strategist who has taken brands from $0 to $50K/month. You give brutally specific, actionable marketing strategies — not generic advice. You know the TikTok algorithm, what content converts, and how to scale profitably. You respond only with valid JSON.`,
+    },
+    {
+      role: "user",
+      content: `Create a complete TikTok marketing strategy for:
+Product: ${productName}
+Description: ${productDescription}${budget ? `\nBudget: ${budget}` : ""}${goal ? `\nGoal: ${goal}` : ""}
+
+Be hyper-specific. Give exact tactics, not vague suggestions.
+
+Return ONLY this JSON:
+{
+  "summary": "2-sentence executive summary of the strategy",
+  "targetAudience": {
+    "primary": "Most specific possible description of primary buyer",
+    "secondary": "Secondary audience",
+    "psychographics": "What motivates them to buy",
+    "bestTimeToReach": "When they're most active on TikTok"
+  },
+  "contentStrategy": {
+    "postingFrequency": "X posts per day",
+    "contentMix": {
+      "hooks": "40% — scroll-stopping problem/solution openers",
+      "demos": "30% — showing the product in action",
+      "testimonials": "20% — UGC-style reactions",
+      "trending": "10% — riding trending sounds/formats"
+    },
+    "bestFormats": ["Format 1 with why it works", "Format 2", "Format 3"],
+    "videoLength": "Optimal video length and why",
+    "bestPostingTimes": ["7-9am local", "12-2pm", "7-10pm"]
+  },
+  "weeklyPlan": [
+    { "week": 1, "theme": "Launch & Test", "goal": "Find winning hook", "dailyActions": ["Action 1", "Action 2", "Action 3"], "successMetric": "At least 1 video reaching 10K views" },
+    { "week": 2, "theme": "Double Down", "goal": "Scale what works", "dailyActions": ["Action 1", "Action 2"], "successMetric": "First 10 sales" },
+    { "week": 3, "theme": "Community & UGC", "goal": "Social proof", "dailyActions": ["Action 1", "Action 2"], "successMetric": "3+ UGC videos" },
+    { "week": 4, "theme": "Paid Amplification", "goal": "Scale with ads", "dailyActions": ["Action 1", "Action 2"], "successMetric": "$1K revenue" }
+  ],
+  "tiktokTactics": [
+    "Specific TikTok tactic 1",
+    "Specific tactic 2",
+    "Specific tactic 3",
+    "Specific tactic 4",
+    "Specific tactic 5"
+  ],
+  "hashtagStrategy": {
+    "niche": ["#niche1", "#niche2", "#niche3"],
+    "broad": ["#TikTokShop", "#tiktokmademebuyit", "#viral"],
+    "trending": "Check TikTok trending weekly and add 2-3 relevant ones",
+    "tip": "Use 3-5 niche + 2-3 broad hashtags per post — avoid hashtag stuffing"
+  },
+  "budgetAllocation": {
+    "organic": "First 2 weeks: $0 — build organic proof first",
+    "tiktokSpark": "Week 3: $5-10/day boosting best organic video",
+    "tiktokAds": "Week 4+: $20-50/day once you have a proven creative",
+    "ugcCreators": "Optional: $50-200 for micro-influencer posts"
+  },
+  "kpis": [
+    "Video watch rate > 50%",
+    "Profile visit rate > 5%",
+    "Click-through rate > 2%",
+    "Conversion rate > 1.5%"
+  ]
+}`,
+    },
+  ], 6000);
+
+  const text = response.choices[0]?.message?.content ?? "{}";
+  try { res.json(parseJson(text)); }
+  catch { req.log.error({ text }, "Failed to parse marketing strategy response"); res.status(500).json({ error: "Failed to parse AI response" }); }
+});
+
+// ─── Content Calendar ─────────────────────────────────────────────────────────
+
+router.post("/ai/content-calendar", async (req, res) => {
+  const { productName, productDescription, postsPerDay = 2 } = req.body as {
+    productName: string;
+    productDescription: string;
+    postsPerDay?: number;
+  };
+  if (!productName) { res.status(400).json({ error: "productName is required" }); return; }
+
+  const response = await aiChat([
+    {
+      role: "system",
+      content: `You are a TikTok content strategist who creates viral posting calendars for dropshippers. Every day of your calendar has a different angle, format, and hook — never repetitive. You respond only with valid JSON.`,
+    },
+    {
+      role: "user",
+      content: `Create a 7-day TikTok content calendar for:
+Product: ${productName}
+Description: ${productDescription}
+Posts per day: ${postsPerDay}
+
+Make each day completely different. Include exact hooks, specific topics, and posting times.
+
+Return ONLY this JSON:
+{
+  "weekSummary": "What this week accomplishes and why this order works",
+  "days": [
+    {
+      "day": 1,
+      "theme": "Day theme name",
+      "posts": [
+        {
+          "time": "7:30am",
+          "contentType": "hook video / demo / testimonial / trending / educational",
+          "hook": "EXACT first line to say on camera",
+          "topic": "Specific topic and what to show",
+          "script": "30-word outline of what to say/show",
+          "hashtags": "#hashtag1 #hashtag2 #hashtag3",
+          "expectedOutcome": "What this post should achieve"
+        }
+      ]
+    }
+  ],
+  "proTips": [
+    "Specific tip 1 for this product's content",
+    "Tip 2",
+    "Tip 3"
+  ]
+}`,
+    },
+  ], 7000);
+
+  const text = response.choices[0]?.message?.content ?? "{}";
+  try { res.json(parseJson(text)); }
+  catch { req.log.error({ text }, "Failed to parse content calendar response"); res.status(500).json({ error: "Failed to parse AI response" }); }
+});
+
+// ─── Ask AI ───────────────────────────────────────────────────────────────────
+
+router.post("/ai/ask", async (req, res) => {
+  const { message } = req.body as { message: string };
+  if (!message?.trim()) { res.status(400).json({ error: "message is required" }); return; }
+
+  const response = await aiChat([
+    {
+      role: "system",
+      content: `You are a TikTok Shop dropshipping expert with 7+ years of experience making $200K+/year.
+You know everything about:
+- Finding and validating winning products
+- TikTok marketing, viral content, and the algorithm
+- Supplier sourcing (AliExpress, CJDropshipping, Zendrop, Alibaba)
+- Pricing strategy and profit maximization
+- Scaling from side hustle to full-time income
+- Customer service, returns, and operations
+- TikTok ads, Spark Ads, and paid amplification
+- Competitor analysis and market research
+
+Give specific, actionable advice — not generic tips. Use real numbers and real examples.
+If asked about trends, give your best analysis of what's working right now.
+Always end with 2-3 action items the user can do TODAY.
+Respond with valid JSON only.`,
+    },
+    {
+      role: "user",
+      content: `${message}
+
+Return ONLY this JSON:
+{
+  "answer": "Your full detailed answer — be specific, use examples, give real numbers",
+  "actionItems": ["Do this today: specific action 1", "Specific action 2", "Specific action 3"],
+  "followUpQuestions": ["Relevant follow-up question 1?", "Follow-up 2?", "Follow-up 3?"]
+}`,
+    },
+  ], 4000);
+
+  const text = response.choices[0]?.message?.content ?? "{}";
+  try { res.json(parseJson(text)); }
+  catch { req.log.error({ text }, "Failed to parse ask response"); res.status(500).json({ error: "Failed to parse AI response" }); }
+});
+
 export default router;

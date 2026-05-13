@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,6 +10,7 @@ import Suppliers from "@/pages/Suppliers";
 import Campaigns from "@/pages/Campaigns";
 import Generator from "@/pages/Generator";
 import Settings from "@/pages/Settings";
+import Advisor from "@/pages/Advisor";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 import { authMe } from "@workspace/api-client-react";
@@ -59,6 +59,7 @@ function AuthGate() {
         <Route path="/research" component={Research} />
         <Route path="/suppliers" component={Suppliers} />
         <Route path="/campaigns" component={Campaigns} />
+        <Route path="/advisor" component={Advisor} />
         <Route path="/generator" component={Generator} />
         <Route path="/settings">
           {() => (

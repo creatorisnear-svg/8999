@@ -483,3 +483,77 @@ export interface AutopilotResult {
   contentPieces: AutopilotResultContentPiecesItem[];
   launchChecklist: string[];
 }
+
+export interface DiscoverProduct {
+  name: string;
+  emoji: string;
+  description: string;
+  whyNow: string;
+  estimatedCost: number;
+  estimatedSellingPrice: number;
+  profitMargin: number;
+  trendScore: number;
+  viralAngle: string;
+  firstHook: string;
+  sourcingKeyword: string;
+  category: string;
+}
+
+export interface DiscoverResult {
+  products: DiscoverProduct[];
+  marketContext: string;
+}
+
+export interface MarketingStrategyInput {
+  productName: string;
+  productDescription: string;
+  budget?: string | null;
+  goal?: string | null;
+}
+
+export type MarketingStrategyResultTargetAudience = { [key: string]: unknown };
+
+export type MarketingStrategyResultContentStrategy = { [key: string]: unknown };
+
+export type MarketingStrategyResultWeeklyPlanItem = { [key: string]: unknown };
+
+export type MarketingStrategyResultHashtagStrategy = { [key: string]: unknown };
+
+export type MarketingStrategyResultBudgetAllocation = {
+  [key: string]: unknown;
+};
+
+export interface MarketingStrategyResult {
+  summary: string;
+  targetAudience: MarketingStrategyResultTargetAudience;
+  contentStrategy: MarketingStrategyResultContentStrategy;
+  weeklyPlan: MarketingStrategyResultWeeklyPlanItem[];
+  tiktokTactics: string[];
+  hashtagStrategy?: MarketingStrategyResultHashtagStrategy;
+  budgetAllocation?: MarketingStrategyResultBudgetAllocation;
+  kpis?: string[];
+}
+
+export interface ContentCalendarInput {
+  productName: string;
+  productDescription: string;
+  postsPerDay?: number | null;
+}
+
+export type ContentCalendarResultDaysItem = { [key: string]: unknown };
+
+export interface ContentCalendarResult {
+  days: ContentCalendarResultDaysItem[];
+  weekSummary: string;
+  proTips?: string[];
+}
+
+export interface AiAskInput {
+  message: string;
+}
+
+export interface AiAskResult {
+  answer: string;
+  actionItems?: string[];
+  followUpQuestions?: string[];
+}

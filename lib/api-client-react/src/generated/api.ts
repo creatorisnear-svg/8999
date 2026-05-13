@@ -17,6 +17,8 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AiAskInput,
+  AiAskResult,
   ApiError,
   AuthLoginInput,
   AuthStatus,
@@ -25,12 +27,17 @@ import type {
   Campaign,
   CampaignInput,
   CampaignUpdate,
+  ContentCalendarInput,
+  ContentCalendarResult,
   ContentGenerationInput,
   ContentGenerationResult,
   DashboardStats,
+  DiscoverResult,
   HealthStatus,
   ListingGenerationInput,
   ListingGenerationResult,
+  MarketingStrategyInput,
+  MarketingStrategyResult,
   OpenaiConversation,
   OpenaiConversationInput,
   OpenaiConversationWithMessages,
@@ -1905,6 +1912,345 @@ export const useAiAutopilot = <
   TContext
 > => {
   return useMutation(getAiAutopilotMutationOptions(options));
+};
+
+/**
+ * @summary Zero-input product discovery — what should I sell right now?
+ */
+export const getAiDiscoverUrl = () => {
+  return `/api/ai/discover`;
+};
+
+export const aiDiscover = async (
+  options?: RequestInit,
+): Promise<DiscoverResult> => {
+  return customFetch<DiscoverResult>(getAiDiscoverUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getAiDiscoverMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiDiscover>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof aiDiscover>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["aiDiscover"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof aiDiscover>>,
+    void
+  > = () => {
+    return aiDiscover(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AiDiscoverMutationResult = NonNullable<
+  Awaited<ReturnType<typeof aiDiscover>>
+>;
+
+export type AiDiscoverMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Zero-input product discovery — what should I sell right now?
+ */
+export const useAiDiscover = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiDiscover>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof aiDiscover>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getAiDiscoverMutationOptions(options));
+};
+
+/**
+ * @summary Full multi-week marketing strategy for a product
+ */
+export const getAiMarketingStrategyUrl = () => {
+  return `/api/ai/marketing-strategy`;
+};
+
+export const aiMarketingStrategy = async (
+  marketingStrategyInput: MarketingStrategyInput,
+  options?: RequestInit,
+): Promise<MarketingStrategyResult> => {
+  return customFetch<MarketingStrategyResult>(getAiMarketingStrategyUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(marketingStrategyInput),
+  });
+};
+
+export const getAiMarketingStrategyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiMarketingStrategy>>,
+    TError,
+    { data: BodyType<MarketingStrategyInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof aiMarketingStrategy>>,
+  TError,
+  { data: BodyType<MarketingStrategyInput> },
+  TContext
+> => {
+  const mutationKey = ["aiMarketingStrategy"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof aiMarketingStrategy>>,
+    { data: BodyType<MarketingStrategyInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return aiMarketingStrategy(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AiMarketingStrategyMutationResult = NonNullable<
+  Awaited<ReturnType<typeof aiMarketingStrategy>>
+>;
+export type AiMarketingStrategyMutationBody = BodyType<MarketingStrategyInput>;
+export type AiMarketingStrategyMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Full multi-week marketing strategy for a product
+ */
+export const useAiMarketingStrategy = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiMarketingStrategy>>,
+    TError,
+    { data: BodyType<MarketingStrategyInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof aiMarketingStrategy>>,
+  TError,
+  { data: BodyType<MarketingStrategyInput> },
+  TContext
+> => {
+  return useMutation(getAiMarketingStrategyMutationOptions(options));
+};
+
+/**
+ * @summary 7-day TikTok content calendar for a product
+ */
+export const getAiContentCalendarUrl = () => {
+  return `/api/ai/content-calendar`;
+};
+
+export const aiContentCalendar = async (
+  contentCalendarInput: ContentCalendarInput,
+  options?: RequestInit,
+): Promise<ContentCalendarResult> => {
+  return customFetch<ContentCalendarResult>(getAiContentCalendarUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(contentCalendarInput),
+  });
+};
+
+export const getAiContentCalendarMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiContentCalendar>>,
+    TError,
+    { data: BodyType<ContentCalendarInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof aiContentCalendar>>,
+  TError,
+  { data: BodyType<ContentCalendarInput> },
+  TContext
+> => {
+  const mutationKey = ["aiContentCalendar"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof aiContentCalendar>>,
+    { data: BodyType<ContentCalendarInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return aiContentCalendar(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AiContentCalendarMutationResult = NonNullable<
+  Awaited<ReturnType<typeof aiContentCalendar>>
+>;
+export type AiContentCalendarMutationBody = BodyType<ContentCalendarInput>;
+export type AiContentCalendarMutationError = ErrorType<unknown>;
+
+/**
+ * @summary 7-day TikTok content calendar for a product
+ */
+export const useAiContentCalendar = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiContentCalendar>>,
+    TError,
+    { data: BodyType<ContentCalendarInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof aiContentCalendar>>,
+  TError,
+  { data: BodyType<ContentCalendarInput> },
+  TContext
+> => {
+  return useMutation(getAiContentCalendarMutationOptions(options));
+};
+
+/**
+ * @summary Ask the AI anything about TikTok dropshipping
+ */
+export const getAiAskUrl = () => {
+  return `/api/ai/ask`;
+};
+
+export const aiAsk = async (
+  aiAskInput: AiAskInput,
+  options?: RequestInit,
+): Promise<AiAskResult> => {
+  return customFetch<AiAskResult>(getAiAskUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(aiAskInput),
+  });
+};
+
+export const getAiAskMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiAsk>>,
+    TError,
+    { data: BodyType<AiAskInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof aiAsk>>,
+  TError,
+  { data: BodyType<AiAskInput> },
+  TContext
+> => {
+  const mutationKey = ["aiAsk"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof aiAsk>>,
+    { data: BodyType<AiAskInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return aiAsk(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AiAskMutationResult = NonNullable<
+  Awaited<ReturnType<typeof aiAsk>>
+>;
+export type AiAskMutationBody = BodyType<AiAskInput>;
+export type AiAskMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Ask the AI anything about TikTok dropshipping
+ */
+export const useAiAsk = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof aiAsk>>,
+    TError,
+    { data: BodyType<AiAskInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof aiAsk>>,
+  TError,
+  { data: BodyType<AiAskInput> },
+  TContext
+> => {
+  return useMutation(getAiAskMutationOptions(options));
 };
 
 /**

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getClient, AI_MODEL, AI_KEY_COUNT } from "@workspace/integrations-openai-ai-server";
+import { getClient, getAiKeyCount } from "@workspace/integrations-openai-ai-server";
 import {
   AiResearchProductsBody,
   AiFindSuppliersBody,
@@ -39,7 +39,7 @@ type Msg = { role: "system" | "user" | "assistant"; content: string };
  */
 async function aiChat(messages: Msg[], maxTokens = 4096) {
   let lastErr: unknown;
-  const attempts = Math.max(AI_KEY_COUNT, 1);
+  const attempts = Math.max(getAiKeyCount(), 1);
   for (let i = 0; i < attempts; i++) {
     try {
       const { client, model } = i === 0 ? getClient() : getClient(true);

@@ -66,6 +66,7 @@ type FullLaunchProduct = {
   imageUrl: string;
   aliexpressSearchUrl: string;
   cjSearchUrl: string;
+  alibabaUrl?: string;
   targetAudience: string;
   hooks: string[];
   videoScript: string;
@@ -379,13 +380,18 @@ function FullLaunchPanel() {
                             </div>
                           ))}
                         </div>
-                        <div className="flex gap-3 mt-2">
+                        <div className="flex flex-wrap gap-3 mt-2">
                           <a href={p.aliexpressSearchUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-0.5">
                             AliExpress <ExternalLink className="w-2.5 h-2.5" />
                           </a>
                           <a href={p.cjSearchUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-0.5">
                             CJDropshipping <ExternalLink className="w-2.5 h-2.5" />
                           </a>
+                          {p.alibabaUrl && (
+                            <a href={p.alibabaUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-orange-500 underline flex items-center gap-0.5 font-medium">
+                              Alibaba <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          )}
                         </div>
                       </div>
                     )}

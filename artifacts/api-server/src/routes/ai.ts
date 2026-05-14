@@ -99,7 +99,7 @@ Return ONLY this JSON:
       "targetAudience": "Very specific demographic",
       "viralAngles": ["Angle 1 — specific video concept", "Angle 2", "Angle 3"],
       "trendingHooks": ["Hook line 1 that stops scroll", "Hook line 2", "Hook line 3"],
-      "sourcingTip": "Specific CJDropshipping/AliExpress category or search term",
+      "sourcingTip": "Specific search term to use on CJDropshipping, AliExpress, or Alibaba",
       "riskLevel": "low"
     }
   ]
@@ -132,14 +132,16 @@ router.post("/ai/find-suppliers", async (req, res) => {
   const response = await aiChat([
     {
       role: "system",
-      content: `You are a dropshipping sourcing expert who knows every major supplier platform.
+      content: `You are a dropshipping sourcing expert who knows every major supplier platform including Alibaba, AliExpress, CJDropshipping, Zendrop, and Spocket.
 You help TikTok sellers find reliable, fast-shipping suppliers with great margins.
+Always include Alibaba as an option for bulk or private-label potential.
 Always respond with valid JSON only.`,
     },
     {
       role: "user",
       content: `Find ${count} supplier options for "${productName}" (category: ${productCategory}) optimized for TikTok Shop dropshipping.
 
+Include a mix of platforms: CJDropshipping or Zendrop (fastest shipping), AliExpress (widest selection), and Alibaba (bulk / private label / best unit cost at scale).
 Prioritize: fast shipping, low MOQ, good reviews, TikTok Shop compatible.
 
 Return ONLY this JSON:
@@ -147,7 +149,7 @@ Return ONLY this JSON:
   "suppliers": [
     {
       "name": "Specific store or supplier name",
-      "platform": "CJDropshipping/AliExpress/Alibaba/Zendrop/etc",
+      "platform": "CJDropshipping/AliExpress/Alibaba/Zendrop/Spocket/etc",
       "url": "https://specific-search-url.com",
       "productCategory": "${productCategory}",
       "rating": 4.8,
@@ -440,7 +442,7 @@ router.post("/ai/discover", async (req, res) => {
 
 Requirements:
 - Products that are actively going viral on TikTok right now
-- Can be sourced from AliExpress or CJDropshipping for under $15
+- Can be sourced from AliExpress, CJDropshipping, or Alibaba for under $15
 - Have at least 65% profit margin
 - Have an obvious, easy-to-film TikTok content angle
 - Real, specific product names — not just "LED lights" but exactly what type
@@ -462,7 +464,7 @@ Return ONLY this JSON:
       "trendScore": 92,
       "viralAngle": "The single best TikTok video concept for this product",
       "firstHook": "The exact first line to say in your first video",
-      "sourcingKeyword": "Exact search term to use on AliExpress/CJDropshipping"
+      "sourcingKeyword": "Exact search term to use on AliExpress, CJDropshipping, or Alibaba"
     }
   ]
 }`,
@@ -637,10 +639,10 @@ router.post("/ai/full-launch", async (req, res) => {
       content: `You are a veteran TikTok Shop dropshipping expert who has generated over $10M in combined student revenue. You know EXACTLY what is selling on TikTok Shop RIGHT NOW. You think like a product researcher, copywriter, and marketer simultaneously.
 
 You give brutally specific, real information:
-- Actual product names that exist on AliExpress/CJDropshipping
+- Actual product names that exist on AliExpress, CJDropshipping, or Alibaba
 - Psychologically optimized prices (e.g. $29.99, not $30)
 - Hook lines that ACTUALLY stop the scroll
-- Real supplier search URLs
+- Real supplier search URLs for AliExpress, CJDropshipping, AND Alibaba
 - Descriptions that make people click "Add to Cart" immediately
 
 You respond only with valid JSON — no markdown, no commentary.`,
@@ -655,7 +657,7 @@ Requirements:
 - At least 65% profit margin potential
 - Easy to create TikTok content for — visual wow factor, emotional reaction, or satisfying demo
 - Mix of different niches (beauty, home, tech, lifestyle, etc.)
-- Real products that exist on AliExpress/CJDropshipping
+- Real products that exist on AliExpress, CJDropshipping, or Alibaba
 
 Return ONLY this JSON — all fields are required:
 {
@@ -684,6 +686,7 @@ Return ONLY this JSON — all fields are required:
       "imageSearchQuery": "specific product photo search keywords (2-4 words)",
       "aliexpressSearchUrl": "https://www.aliexpress.com/wholesale?SearchText=PRODUCT+KEYWORDS",
       "cjSearchUrl": "https://cjdropshipping.com/search?q=PRODUCT+KEYWORDS",
+      "alibabaUrl": "https://www.alibaba.com/trade/search?SearchText=PRODUCT+KEYWORDS",
       "targetAudience": "Very specific demographic and psychographic",
       "hooks": [
         "I spent $8 and made $400 this week — here's what I sold",

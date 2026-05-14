@@ -9,6 +9,9 @@ import "./types/session.d.ts";
 
 const app: Express = express();
 
+// Trust the first proxy (Koyeb's load balancer) so secure cookies work over HTTPS
+app.set("trust proxy", 1);
+
 app.use(
   pinoHttp({
     logger,

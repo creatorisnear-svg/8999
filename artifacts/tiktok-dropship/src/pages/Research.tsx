@@ -1128,9 +1128,25 @@ export default function Research() {
                   )}
 
                   {idea.sourcingTip && (
-                    <p className="text-xs text-muted-foreground bg-muted/50 rounded px-2.5 py-1.5">
-                      <span className="font-medium">Sourcing tip:</span> {idea.sourcingTip}
-                    </p>
+                    <div className="bg-muted/50 rounded px-2.5 py-2 space-y-1.5">
+                      <p className="text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">Sourcing keyword:</span> <code className="bg-background px-1.5 py-0.5 rounded text-xs">{idea.sourcingTip}</code>
+                      </p>
+                      <div className="flex gap-3 flex-wrap">
+                        {(idea as any).aliexpressUrl && (
+                          <a href={(idea as any).aliexpressUrl} target="_blank" rel="noopener noreferrer"
+                            className="text-xs text-primary underline flex items-center gap-0.5 font-medium">
+                            Search AliExpress <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                        {(idea as any).cjUrl && (
+                          <a href={(idea as any).cjUrl} target="_blank" rel="noopener noreferrer"
+                            className="text-xs text-primary underline flex items-center gap-0.5 font-medium">
+                            Search CJDropshipping <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   )}
 
                   {/* Action Buttons */}

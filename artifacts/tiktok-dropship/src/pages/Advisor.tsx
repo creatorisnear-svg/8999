@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   ArrowRight,
   RefreshCw,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -229,10 +230,25 @@ function DiscoverTab() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">Source with:</span>
-                    <code className="bg-muted px-2 py-0.5 rounded text-xs">{p.sourcingKeyword}</code>
-                    <span className="text-xs">on AliExpress / CJDropshipping</span>
+                  <div className="bg-muted/50 rounded-lg px-3 py-2.5 space-y-1.5">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="font-medium text-foreground text-xs">Search keyword:</span>
+                      <code className="bg-background px-1.5 py-0.5 rounded text-xs border">{p.sourcingKeyword}</code>
+                    </div>
+                    <div className="flex gap-4 flex-wrap">
+                      {(p as any).aliexpressUrl && (
+                        <a href={(p as any).aliexpressUrl} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-primary underline flex items-center gap-0.5 font-medium">
+                          Search AliExpress <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
+                      {(p as any).cjUrl && (
+                        <a href={(p as any).cjUrl} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-primary underline flex items-center gap-0.5 font-medium">
+                          Search CJDropshipping <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

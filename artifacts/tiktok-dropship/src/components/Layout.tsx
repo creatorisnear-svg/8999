@@ -13,6 +13,7 @@ import {
   X,
   BrainCircuit,
   Zap,
+  Video,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard, highlight: false },
   { href: "/advisor", label: "AI Advisor", icon: BrainCircuit, highlight: true },
   { href: "/research", label: "AI Research", icon: Sparkles, highlight: false },
+  { href: "/ads-videos", label: "Ads & Videos", icon: Video, highlight: true },
   { href: "/products", label: "Products", icon: Package, highlight: false },
   { href: "/suppliers", label: "Suppliers", icon: Truck, highlight: false },
   { href: "/campaigns", label: "Campaigns", icon: Megaphone, highlight: false },

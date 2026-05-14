@@ -820,6 +820,255 @@ Return ONLY this JSON — all fields required:
   }
 });
 
+// ─── Generate TikTok Ad Package ──────────────────────────────────────────────
+
+router.post("/ai/generate-ad", async (req, res) => {
+  const { productName, productDescription, targetAudience, budget, goal } = req.body as {
+    productName: string;
+    productDescription: string;
+    targetAudience?: string;
+    budget?: string;
+    goal?: string;
+  };
+  if (!productName || !productDescription) {
+    res.status(400).json({ error: "productName and productDescription are required" });
+    return;
+  }
+
+  const response = await aiChat([
+    {
+      role: "system",
+      content: `You are a TikTok Ads specialist who writes high-converting ad copy for TikTok Ads Manager. You know exactly what works on TikTok: short punchy hooks, pattern interrupts, social proof angles, and strong CTAs. You understand TikTok's ad formats: TopView, In-Feed Ads, Spark Ads, and Collection Ads. You always write copy that feels native to TikTok — not like a traditional ad. Respond only with valid JSON.`,
+    },
+    {
+      role: "user",
+      content: `Create a complete TikTok ad package for this product:
+
+Product: ${productName}
+Description: ${productDescription}${targetAudience ? `\nTarget audience: ${targetAudience}` : ""}${budget ? `\nDaily budget: ${budget}` : ""}${goal ? `\nCampaign goal: ${goal}` : ""}
+
+Write everything ready to paste directly into TikTok Ads Manager. Be extremely specific — no generic advice.
+
+Return ONLY this JSON:
+{
+  "campaignName": "Descriptive campaign name for Ads Manager",
+  "objective": "CONVERSION or TRAFFIC or REACH — choose the best one for this product and explain why",
+  "adFormats": [
+    {
+      "format": "In-Feed Ad",
+      "whyUseIt": "Why this format is best for this product",
+      "specs": "9:16 vertical video, 9-15 seconds recommended, sound-on"
+    },
+    {
+      "format": "Spark Ad",
+      "whyUseIt": "Boost your best organic post as a paid ad — most native-looking",
+      "specs": "Use your highest-performing organic TikTok video"
+    }
+  ],
+  "targeting": {
+    "ageRange": "e.g. 18-34",
+    "genders": "All / Female / Male — with reason",
+    "interests": ["Interest category 1", "Interest category 2", "Interest category 3", "Interest 4", "Interest 5"],
+    "behaviors": ["TikTok behavior 1", "Behavior 2"],
+    "customAudience": "Who to retarget (video viewers, profile visitors, website visitors)",
+    "lookalike": "What seed audience to build lookalike from"
+  },
+  "budget": {
+    "dailyBudget": "Specific $ amount to start with and why",
+    "testingPhase": "How much to spend total to find a winner",
+    "scalingThreshold": "What metrics to hit before scaling budget up"
+  },
+  "adVariants": [
+    {
+      "variantName": "Variant A — Problem/Solution",
+      "hook": "Exact first line to say or show on screen (first 3 seconds)",
+      "script": "Full 15-second script: HOOK (0-3s) → PROBLEM (3-8s) → SOLUTION (8-13s) → CTA (13-15s)",
+      "textOverlay": "Text to show on screen during the video",
+      "caption": "Ad caption under 100 chars with CTA",
+      "cta": "SHOP_NOW / LEARN_MORE / ORDER_NOW — choose the right TikTok CTA button"
+    },
+    {
+      "variantName": "Variant B — Social Proof",
+      "hook": "Different angle hook — reaction, transformation, or testimonial style",
+      "script": "Full 15-second script using social proof angle",
+      "textOverlay": "Text overlay for this variant",
+      "caption": "Different caption for A/B testing",
+      "cta": "CTA button choice"
+    },
+    {
+      "variantName": "Variant C — Curiosity/Trend",
+      "hook": "Curiosity-gap or trending format hook",
+      "script": "Full 15-second script using curiosity angle",
+      "textOverlay": "Text overlay",
+      "caption": "Caption",
+      "cta": "CTA button"
+    }
+  ],
+  "landingPage": {
+    "recommendation": "TikTok Shop product page / your own store / both",
+    "tip": "Specific advice on optimizing the landing page for TikTok traffic"
+  },
+  "kpis": {
+    "ctr": "Target click-through rate to aim for",
+    "cpc": "Expected cost-per-click range for this niche",
+    "roas": "Target return on ad spend to be profitable",
+    "cpm": "Expected CPM range on TikTok for this audience"
+  },
+  "stepByStep": [
+    "Step 1: Open TikTok Ads Manager at ads.tiktok.com",
+    "Step 2: Click Create Campaign → choose [objective]",
+    "Step 3: [specific next step]",
+    "Step 4: [specific next step]",
+    "Step 5: [specific next step]",
+    "Step 6: Upload your video creative using the script above",
+    "Step 7: [specific final step to launch]"
+  ],
+  "proTips": [
+    "Specific TikTok ads tip 1 for this exact product",
+    "Tip 2",
+    "Tip 3",
+    "Tip 4"
+  ]
+}`,
+    },
+  ], 6000);
+
+  const text = response.choices[0]?.message?.content ?? "{}";
+  try { res.json(parseJson(text)); }
+  catch { req.log.error({ text }, "Failed to parse ad package response"); res.status(500).json({ error: "Failed to parse AI response" }); }
+});
+
+// ─── Generate Video Production Package ───────────────────────────────────────
+
+router.post("/ai/generate-video", async (req, res) => {
+  const { productName, productDescription, targetAudience, videoStyle, duration } = req.body as {
+    productName: string;
+    productDescription: string;
+    targetAudience?: string;
+    videoStyle?: string;
+    duration?: string;
+  };
+  if (!productName || !productDescription) {
+    res.status(400).json({ error: "productName and productDescription are required" });
+    return;
+  }
+
+  const response = await aiChat([
+    {
+      role: "system",
+      content: `You are a viral TikTok video director and producer who has created 1,000+ videos that drove real sales. You know exactly how to structure a product video that stops scrolling in 3 seconds and drives people to buy. You write complete, camera-ready production plans — every scene, every word, every camera move. Style: ${videoStyle || "trendy and engaging"}. You respond only with valid JSON.`,
+    },
+    {
+      role: "user",
+      content: `Create a complete TikTok video production package for:
+Product: ${productName}
+Description: ${productDescription}${targetAudience ? `\nTarget audience: ${targetAudience}` : ""}
+Video length: ${duration || "15-30 seconds"}
+Style: ${videoStyle || "engaging product demo"}
+
+Write everything camera-ready — the person filming should be able to pick up their phone and start immediately.
+
+Return ONLY this JSON:
+{
+  "videoTitle": "Working title for this video concept",
+  "concept": "One sentence describing the overall video idea and why it will go viral",
+  "estimatedViews": "Realistic view estimate if posted at peak time with good execution",
+  "hook": {
+    "line": "The EXACT first words to say — the scroll-stopper (first 2-3 seconds)",
+    "action": "What to physically DO in the first frame (hold product up, react to camera, show transformation)",
+    "textOverlay": "Text to flash on screen at the 1-second mark"
+  },
+  "scenes": [
+    {
+      "sceneNumber": 1,
+      "timestamp": "0-3s",
+      "name": "The Hook",
+      "whatToFilm": "Exactly what to point the camera at and how to frame it",
+      "whatToSay": "Exact words — camera-ready script",
+      "cameraAngle": "Close-up / Wide shot / Over-the-shoulder / POV",
+      "textOverlay": "Text to display on screen during this scene",
+      "tip": "Filming tip to make this scene look professional with just a phone"
+    },
+    {
+      "sceneNumber": 2,
+      "timestamp": "3-8s",
+      "name": "The Problem",
+      "whatToFilm": "What to show",
+      "whatToSay": "Exact words",
+      "cameraAngle": "Camera angle",
+      "textOverlay": "Screen text",
+      "tip": "Filming tip"
+    },
+    {
+      "sceneNumber": 3,
+      "timestamp": "8-18s",
+      "name": "The Demo",
+      "whatToFilm": "Exactly what to show — the product in action",
+      "whatToSay": "Exact words while demoing",
+      "cameraAngle": "Camera angle",
+      "textOverlay": "Screen text",
+      "tip": "How to make the demo look amazing"
+    },
+    {
+      "sceneNumber": 4,
+      "timestamp": "18-25s",
+      "name": "The Reaction / Result",
+      "whatToFilm": "Show the wow moment or reaction",
+      "whatToSay": "Exact words",
+      "cameraAngle": "Camera angle",
+      "textOverlay": "Screen text",
+      "tip": "How to capture this scene"
+    },
+    {
+      "sceneNumber": 5,
+      "timestamp": "25-30s",
+      "name": "The CTA",
+      "whatToFilm": "End card or direct look at camera",
+      "whatToSay": "Exact CTA words — urgent, specific, action-driving",
+      "cameraAngle": "Direct to camera",
+      "textOverlay": "CTA text overlay (e.g. 'Link in bio — selling fast!')",
+      "tip": "How to deliver this with energy"
+    }
+  ],
+  "fullScript": "The complete word-for-word script from start to finish — ready to read from a teleprompter or memorize",
+  "caption": "TikTok caption under 150 chars with emoji and CTA",
+  "hashtags": "#TikTokShop #tiktokmademebuyit #viral #[niche] #[product]",
+  "music": {
+    "recommendation": "Specific song name or type of music that fits this video perfectly",
+    "tip": "Where to find trending sounds on TikTok and how to pick one that boosts reach"
+  },
+  "editingInstructions": [
+    "Specific editing step 1 — what cuts to make, transitions to add",
+    "Step 2 — text animations or effects",
+    "Step 3 — color grade or filter to use",
+    "Step 4 — final review before posting"
+  ],
+  "postingStrategy": {
+    "bestTime": "Specific time to post for maximum initial push",
+    "firstCommentToPin": "Exact comment to post yourself to boost engagement",
+    "replyStrategy": "How to reply to early comments to trigger the algorithm"
+  },
+  "hookVariants": [
+    "Alternative hook line 1 to A/B test",
+    "Alternative hook line 2",
+    "Alternative hook line 3"
+  ]
+}`,
+    },
+  ], 7000);
+
+  const text = response.choices[0]?.message?.content ?? "{}";
+  try {
+    const data = parseJson(text) as Record<string, unknown>;
+    // Generate a product image for the video thumbnail
+    data.thumbnailImageUrl = getProductImageUrl(productName);
+    res.json(data);
+  } catch {
+    req.log.error({ text }, "Failed to parse video package response");
+    res.status(500).json({ error: "Failed to parse AI response" });
+  }
+});
+
 // ─── Ask AI ───────────────────────────────────────────────────────────────────
 
 router.post("/ai/ask", async (req, res) => {

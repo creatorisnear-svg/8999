@@ -11,6 +11,7 @@ import Campaigns from "@/pages/Campaigns";
 import Generator from "@/pages/Generator";
 import Settings from "@/pages/Settings";
 import Advisor from "@/pages/Advisor";
+import AdsVideos from "@/pages/AdsVideos";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 import { authMe } from "@workspace/api-client-react";
@@ -60,6 +61,7 @@ function AuthGate() {
         <Route path="/suppliers" component={Suppliers} />
         <Route path="/campaigns" component={Campaigns} />
         <Route path="/advisor" component={Advisor} />
+        <Route path="/ads-videos" component={AdsVideos} />
         <Route path="/generator" component={Generator} />
         <Route path="/settings">
           {() => (

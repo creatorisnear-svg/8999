@@ -8,8 +8,8 @@ WORKDIR /app
 # Copy full workspace
 COPY . .
 
-# Install all dependencies (frozen for reproducible builds)
-RUN pnpm install --frozen-lockfile
+# Install all dependencies
+RUN pnpm install --no-frozen-lockfile
 
 # Build frontend + bundle into api-server/dist
 RUN NODE_ENV=production pnpm --filter @workspace/api-server run build

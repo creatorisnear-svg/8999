@@ -90,7 +90,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(publicDir, { maxAge: "1h" }));
 
   // SPA fallback — any non-API route returns index.html so client-side routing works
-  app.get("*", (req: Request, res: Response, next: NextFunction) => {
+  app.get("/{*path}", (req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith("/api/")) {
       next();
       return;

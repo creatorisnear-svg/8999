@@ -42,9 +42,9 @@ async function aiChat(messages: Msg[], maxTokens = 4096) {
   const attempts = Math.max(AI_KEY_COUNT, 1);
   for (let i = 0; i < attempts; i++) {
     try {
-      const client = i === 0 ? getClient() : getClient(true);
+      const { client, model } = i === 0 ? getClient() : getClient(true);
       return await client.chat.completions.create({
-        model: AI_MODEL,
+        model,
         messages,
         max_completion_tokens: maxTokens,
         stream: false,

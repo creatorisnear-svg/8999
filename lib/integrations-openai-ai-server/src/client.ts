@@ -1,57 +1,74 @@
 import OpenAI from "openai";
 
-// ─── Groq-only AI client ──────────────────────────────────────────────────────
-// Supports multiple keys for round-robin rotation:
-//   GROQ_API_KEY=key1,key2,key3   (comma-separated)
-//   GROQ_API_KEY_1 / GROQ_API_KEY_2 ... GROQ_API_KEY_10  (numbered vars)
-
+// ─── Provider config ──────────────────────────────────────────────────────────
 const GROQ_BASE_URL = "https://api.groq.com/openai/v1";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-function collectGroqKeys(): string[] {
+const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
+const GEMINI_MODEL = "gemini-2.0-flash";
+
+// ─── Key collection helpers ───────────────────────────────────────────────────
+function collectKeys(envName: string): string[] {
   const keys: string[] = [];
-  const raw = process.env.GROQ_API_KEY;
+  const raw = process.env[envName];
   if (raw) keys.push(...raw.split(",").map((k) => k.trim()).filter(Boolean));
   for (let i = 1; i <= 10; i++) {
-    const k = process.env[`GROQ_API_KEY_${i}`]?.trim();
+    const k = process.env[`${envName}_${i}`]?.trim();
     if (k && !keys.includes(k)) keys.push(k);
   }
   return keys;
 }
 
-const groqKeys = collectGroqKeys();
+// ─── Build combined pool ──────────────────────────────────────────────────────
+// Each entry carries the client + the correct model for that provider.
 
-if (groqKeys.length === 0) {
+export type PoolEntry = { client: OpenAI; model: string };
+
+const pool: PoolEntry[] = [];
+
+for (const key of collectKeys("GROQ_API_KEY")) {
+  pool.push({
+    client: new OpenAI({ apiKey: key, baseURL: GROQ_BASE_URL }),
+    model: GROQ_MODEL,
+  });
+}
+
+for (const key of collectKeys("GEMINI_API_KEY")) {
+  pool.push({
+    client: new OpenAI({ apiKey: key, baseURL: GEMINI_BASE_URL }),
+    model: GEMINI_MODEL,
+  });
+}
+
+if (pool.length === 0) {
   throw new Error(
-    "GROQ_API_KEY is required but not set.\n" +
-      "  Get a free key at https://console.groq.com/keys\n" +
-      "  Tip: paste multiple keys comma-separated (GROQ_API_KEY=key1,key2) for automatic rotation.",
+    "No AI API keys found. Set at least one of:\n" +
+      "  GROQ_API_KEY   — https://console.groq.com/keys  (free)\n" +
+      "  GEMINI_API_KEY — https://aistudio.google.com/apikey  (free)\n" +
+      "Tip: comma-separate multiple keys for automatic rotation.",
   );
 }
 
-// ─── Client Pool ──────────────────────────────────────────────────────────────
-
-const clients: OpenAI[] = groqKeys.map(
-  (key) => new OpenAI({ apiKey: key, baseURL: GROQ_BASE_URL }),
-);
+// ─── Round-robin rotation ─────────────────────────────────────────────────────
 
 let _counter = 0;
 
 /**
- * Returns the next client in the round-robin rotation.
+ * Returns the next { client, model } in the round-robin rotation.
  * Call getClient(true) on a 429 to skip immediately to the next key.
  */
-export function getClient(skip = false): OpenAI {
-  if (skip) _counter = (_counter + 1) % clients.length;
-  const client = clients[_counter % clients.length];
-  _counter = (_counter + 1) % clients.length;
-  return client;
+export function getClient(skip = false): PoolEntry {
+  if (skip) _counter = (_counter + 1) % pool.length;
+  const entry = pool[_counter % pool.length];
+  _counter = (_counter + 1) % pool.length;
+  return entry;
 }
 
 /** Legacy single-client export — points to first client. */
-export const openai = clients[0];
+export const openai = pool[0].client;
 
-/** Model used for all AI requests. */
-export const AI_MODEL = "llama-3.3-70b-versatile";
+/** Default model (first pool entry). */
+export const AI_MODEL = pool[0].model;
 
-/** How many Groq keys are loaded (useful for health checks). */
-export const AI_KEY_COUNT = clients.length;
+/** Total keys loaded across all providers. */
+export const AI_KEY_COUNT = pool.length;

@@ -11,4 +11,13 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL,
   },
+  // Only manage this app's tables — ignore any other tables in the shared DB
+  tablesFilter: [
+    "products",
+    "suppliers",
+    "campaigns",
+    "conversations",
+    "messages",
+    "shop_settings",
+  ],
 });
